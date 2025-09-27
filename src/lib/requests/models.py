@@ -43,10 +43,7 @@ class LoginRequest(AccountInfo):
     @staticmethod
     def new() -> "LoginRequest":
         account_info: AccountInfo = AccountInfo.new()
-        return LoginRequest(
-            email=account_info.username,
-            password=account_info.password,
-        )
+        return LoginRequest.from_account_info(account_info)
 
     @staticmethod
     def from_account_info(account_info: AccountInfo) -> "LoginRequest":
@@ -70,10 +67,7 @@ class CreateAccountRequest(AccountInfo):
     @staticmethod
     def new() -> "CreateAccountRequest":
         account_info: AccountInfo = AccountInfo.new()
-        return CreateAccountRequest(
-            email=account_info.username,
-            password=account_info.password,
-        )
+        return CreateAccountRequest.from_account_info(account_info)
 
     @staticmethod
     def from_account_info(account_info: AccountInfo) -> "CreateAccountRequest":
