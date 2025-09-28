@@ -23,8 +23,8 @@ class AccountInfo(BaseModel, validate_assignment=True):
 
     @staticmethod
     def new() -> "AccountInfo":
-        email = f"{random_string(randbelow(21), string.ascii_lowercase, string.digits)}@{random_email_domain()}"
-        password = random_string(
+        email: str = f"{random_string(randbelow(21), string.ascii_lowercase, string.digits)}@{random_email_domain()}"
+        password: str = random_string(
             randbelow(13) + PASSWORD_MIN_LENGTH,  # 8 to 20 characters
             string.ascii_lowercase,
             string.ascii_uppercase,
