@@ -10,14 +10,15 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
-            - uses: actions/checkout@v5
+            - name: Checkout repository
+              uses: actions/checkout@v5
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Install uv
+            - name: Install UV
               uses: astral-sh/setup-uv@v6
 
-            - name: Run ruff
+            - name: Run Ruff
               run: uvx ruff format
 
             - name: Check for changes
@@ -35,5 +36,5 @@ jobs:
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
                   git add .
-                  git commit -m "Auto-format code with ruff"
+                  git commit -m "refactor: format code"
                   git push
