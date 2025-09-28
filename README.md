@@ -5,6 +5,6 @@
     </i>
 </p>
 
-> [!CAUTION]
+> [!WARNING]
 >
 > I won't buy any paid plans, so everything is based off the [**Free plan**](https://streamable.com/pricing).
