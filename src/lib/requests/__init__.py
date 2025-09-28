@@ -1,6 +1,8 @@
 from httpx import Client, Response
 from urllib.parse import urljoin, urlencode
+from pydantic import ValidationError
 from .models import *
+from .exceptions import *
 
 
 class URLBuilder:
@@ -48,6 +50,10 @@ def signup(session: Client, account_info: AccountInfo) -> Response:
     body: CreateAccountRequest = CreateAccountRequest.from_account_info(account_info)
 
     response: Response = session.post(url, json=body.model_dump())
+
+    if response.status_code == 400 and "Email already in use" in response.text:
+        raise EmailAlreadyInUseError(response.text, response)
+
     return response
 
 
@@ -56,4 +62,17 @@ def login(session: Client, account_info: AccountInfo) -> Response:
     body: LoginRequest = LoginRequest.from_account_info(account_info)
 
     response: Response = session.post(url, json=body.model_dump())
+
+    try:
+        # API returns 200 OK even for invalid credentials
+        # so we need to check the response body for error messages
+        response_data: ErrorResponse = ErrorResponse.model_validate(response.json())
+        if (
+            response_data.error == "AuthError"
+            and "Invalid username or password" in response_data.message
+        ):
+            raise InvalidCredentialsError(response_data.message, response)
+    except ValidationError:
+        pass
+
     return response

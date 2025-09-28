@@ -75,3 +75,8 @@ class CreateAccountRequest(AccountInfo):
             email=account_info.username,
             password=account_info.password,
         )
+
+
+class ErrorResponse(BaseModel):
+    error: str
+    message: str
