@@ -50,14 +50,14 @@ class StreamableClient:
             raise
 
     @overload
-    def user_info(self, *, authenticated: Literal[True]) -> StreamableUser: ...
+    def get_user_info(self, *, authenticated: Literal[True]) -> StreamableUser: ...
 
     @overload
-    def user_info(
+    def get_user_info(
         self, *, authenticated: Literal[False]
     ) -> StreamableUnauthenticatedUser: ...
 
-    def user_info(
+    def get_user_info(
         self, *, authenticated: bool
     ) -> StreamableUser | StreamableUnauthenticatedUser:
         if authenticated:
@@ -70,11 +70,13 @@ class StreamableClient:
 
         return StreamableUnauthenticatedUser.model_validate(response.json())
 
-    def plans(self, *, authenticated: bool = False) -> list[Plan]:
+    def get_subscription_plans(self, *, authenticated: bool = False) -> list[Plan]:
         if authenticated:
             self._ensure_authenticated()
 
-        response: Response = subscription_info(self._client, authenticated=authenticated)
+        response: Response = subscription_info(
+            self._client, authenticated=authenticated
+        )
         return SubscriptionInfo.model_validate(response.json()).availablePlans
 
     def __enter__(self) -> "StreamableClient":

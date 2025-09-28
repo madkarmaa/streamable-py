@@ -82,6 +82,7 @@ def user_info(session: Client, *, authenticated: bool) -> Response:
     url: str = API_BASE_URL.path("me").build()
     return session.get(url) if authenticated else httpx_get(url)
 
+
 def subscription_info(session: Client, *, authenticated: bool) -> Response:
-    url: str = API_BASE_URL.path("subscription", "info").build()
+    url: str = API_BASE_URL.path("me", "subscription", "info").build()
     return session.get(url) if authenticated else httpx_get(url)
