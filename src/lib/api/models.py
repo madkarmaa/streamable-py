@@ -1,7 +1,7 @@
 import re
 import string
 from secrets import randbelow
-from typing import Optional
+from typing import Optional, Annotated
 from pydantic import (
     BaseModel,
     Field,
@@ -9,6 +9,7 @@ from pydantic import (
     field_validator,
     computed_field,
     ConfigDict,
+    StringConstraints,
 )
 from ..utils import random_string, random_email_domain
 
@@ -91,6 +92,16 @@ class ChangePasswordRequest(BaseModel):
     session: str
 
 
+class ChangePlayerColorRequest(BaseModel):
+    # there is no API-level check for valid colors, so we need to do it ourselves
+    color: Annotated[
+        str,
+        StringConstraints(
+            pattern=r"^#[0-9A-Fa-f]{6}$", strip_whitespace=True, to_lower=True
+        ),
+    ]
+
+
 class ErrorResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -127,7 +138,7 @@ class StreamableUser(StreamableUnauthenticatedUser):
     user_name: str
     email: str
     date_added: float
-    dark_mode: Optional[bool]
+    color: str
     plays_remaining: int
     requests_remaining: int
     allow_download: Optional[bool]

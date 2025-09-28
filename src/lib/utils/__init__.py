@@ -122,3 +122,13 @@ def random_email_domain() -> str:
             "bigpond.net.au",
         ]
     )
+
+
+def rgb_to_hex(r: int, g: int, b: int) -> str:
+    for val, name in [(r, "red"), (g, "green"), (b, "blue")]:
+        if not 0 <= val <= 255:
+            raise ValueError(
+                f"{name} value must be an integer between 0 and 255, got {val}"
+            )
+
+    return f"#{r:02X}{g:02X}{b:02X}"

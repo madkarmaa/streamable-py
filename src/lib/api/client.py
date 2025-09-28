@@ -63,6 +63,7 @@ class StreamableClient:
 
         self._authenticated = False
         self._account_info = None
+        self._client = Client()
 
     def get_user_info(self) -> StreamableUser:
         self._ensure_authenticated()
@@ -85,6 +86,10 @@ class StreamableClient:
         )
 
         self._account_info.password = new_password
+
+    def change_player_color(self, color: str) -> None:
+        self._ensure_authenticated()
+        change_player_color(self._client, color=color)
 
     def __enter__(self) -> "StreamableClient":
         return self
