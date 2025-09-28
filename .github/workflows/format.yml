@@ -15,13 +15,25 @@ jobs:
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
 
+            - name: Check for Python files in changes
+              id: check-python-files
+              run: |
+                  if git diff --name-only HEAD~1 HEAD | grep -q '\.py$'; then
+                      echo "python-files-changed=true" >> $GITHUB_OUTPUT
+                  else
+                      echo "python-files-changed=false" >> $GITHUB_OUTPUT
+                  fi
+
             - name: Install UV
+              if: steps.check-python-files.outputs.python-files-changed == 'true'
               uses: astral-sh/setup-uv@v6
 
             - name: Run Ruff
+              if: steps.check-python-files.outputs.python-files-changed == 'true'
               run: uvx ruff format
 
             - name: Check for changes
+              if: steps.check-python-files.outputs.python-files-changed == 'true'
               id: verify-changed-files
               run: |
                   if [ -n "$(git status --porcelain)" ]; then
@@ -31,7 +43,7 @@ jobs:
                   fi
 
             - name: Commit and push changes
-              if: steps.verify-changed-files.outputs.changed == 'true'
+              if: steps.check-python-files.outputs.python-files-changed == 'true' && steps.verify-changed-files.outputs.changed == 'true'
               run: |
                   git config --local user.email "action@github.com"
                   git config --local user.name "GitHub Action"
