@@ -1,8 +1,15 @@
 import re
 import string
 from secrets import randbelow
-from typing import Any, Optional, Generic, TypeVar
-from pydantic import BaseModel, Field, EmailStr, field_validator, computed_field
+from typing import Optional
+from pydantic import (
+    BaseModel,
+    Field,
+    EmailStr,
+    field_validator,
+    computed_field,
+    ConfigDict,
+)
 from ..utils import random_string, random_email_domain
 
 
@@ -83,99 +90,48 @@ class ErrorResponse(BaseModel):
     message: str
 
 
-class PlanOptions(BaseModel):
-    price: str
-    stripe_id: str
-
-
-class UnauthenticatedPlanOptions(PlanOptions):
-    paypal_id: str
-    paypal_id_notrial: str
-
-
-TPlan = TypeVar("TPlan", bound=PlanOptions)
-
-
 class PrivacySettings(BaseModel):
-    VERSION: int
+    model_config = ConfigDict(extra="ignore")
+
     visibility: str
     allow_sharing: bool
     allow_download: bool
-    allowed_domain: str
     hide_view_count: bool
-    domain_restrictions: str
 
 
-class StreamableUserBase(BaseModel, Generic[TPlan]):
-    plan_name: str
-    plan_price: int
-    plan_annual: bool
-    plan_plays: int
-    plan_requests: int
-    plan_max_length: int
-    plan_max_size: float
-    plan_hide_branding: bool
-    plan_options: dict[str, TPlan]
+class StreamableUnauthenticatedUser(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     socket: str
     stale: int
     total_plays: int
     total_uploads: int
     total_clips: int
     total_videos: int
-    embed_plays: int
+    embed_plays: Optional[int]
     total_embeds: int
-    no_trial: bool
-    promos: list[str]
 
 
-class StreamableUnauthenticatedUser(StreamableUserBase[UnauthenticatedPlanOptions]):
-    pass
+class StreamableUser(StreamableUnauthenticatedUser):
+    model_config = ConfigDict(extra="ignore")
 
-
-class StreamableUser(StreamableUserBase[PlanOptions]):
     id: int
     user_name: str
     email: str
-    date_added: int
-    privacy: int
-    bio: str
-    default_sub: Optional[str]
-    stream_key: Optional[str]
-    pro: Optional[Any]
-    ad_tags: Optional[Any]
-    photo_url: Optional[str]
-    watermark_url: Optional[str]
-    parent: Optional[Any]
-    twitter: str
-    embed_options: Optional[Any]
-    subreddits: Optional[Any]
-    watermark_link: Optional[str]
-    plan: Optional[Any]
+    date_added: float
     dark_mode: Optional[bool]
     plays_remaining: int
     requests_remaining: int
     allow_download: Optional[bool]
-    remove_branding: bool
-    hide_sharing: Optional[Any]
-    allowed_domain: str
-    disable_streamable: bool
-    subscription_status: Optional[str]
-    payment_processor: Optional[str]
-    hosting_provider: bool
-    email_verified: bool
-    requires_email_verification: bool
-    restricted: bool
-    password_set: bool
-    beta: bool
-    color: str
+    remove_branding: Optional[bool]
+    hide_sharing: Optional[bool]
     country: str
-    isp: str
     privacy_settings: PrivacySettings
-    terms_accepted: Optional[Any]
 
 
 class PlanPricing(BaseModel):
-    id: str
+    model_config = ConfigDict(extra="ignore")
+
     cadence: str
     name: str
     price: float
@@ -187,12 +143,13 @@ class Feature(BaseModel):
 
 
 class Plan(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     name: str
     description: str
     monthly: PlanPricing
     annual: PlanPricing
     features: list[Feature]
-    productId: str
 
 
 class StorageLimits(BaseModel):
@@ -204,8 +161,7 @@ class Limits(BaseModel):
 
 
 class SubscriptionInfo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     availablePlans: list[Plan]
-    currentPlan: Optional[Plan] = None
-    nextPlan: Optional[Plan] = None
-    card: Optional[str] = None
     limits: Limits
