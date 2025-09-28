@@ -18,7 +18,7 @@ jobs:
             - name: Check for Python files in changes
               id: check-python-files
               run: |
-                  if git diff --name-only $(git rev-parse --verify HEAD^) HEAD | grep -q '\.py$'; then
+                  if git show --name-only --pretty="" HEAD | grep -q '\.py$'; then
                       echo "python-files-changed=true" >> $GITHUB_OUTPUT
                   else
                       echo "python-files-changed=false" >> $GITHUB_OUTPUT
