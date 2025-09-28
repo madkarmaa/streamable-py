@@ -16,9 +16,9 @@ from ..utils import random_string, random_email_domain
 PASSWORD_MIN_LENGTH: int = 8
 
 
-class AccountInfo(BaseModel):
+class AccountInfo(BaseModel, validate_assignment=True):
     username: EmailStr = Field(..., alias="email", frozen=True)
-    password: str = Field(..., min_length=PASSWORD_MIN_LENGTH, frozen=True)
+    password: str = Field(..., min_length=PASSWORD_MIN_LENGTH)
 
     @staticmethod
     def new() -> "AccountInfo":
@@ -85,7 +85,15 @@ class CreateAccountRequest(AccountInfo):
         )
 
 
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    session: str
+
+
 class ErrorResponse(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     error: str
     message: str
 

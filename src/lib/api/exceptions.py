@@ -1,10 +1,5 @@
-from httpx import Response
-
-
 class StreamableError(Exception):
-    def __init__(self, message: str, response: Response):
-        self.message: str = message
-        self.response: Response = response
+    def __init__(self, message: str):
         super().__init__(message)
 
 
@@ -13,4 +8,12 @@ class EmailAlreadyInUseError(StreamableError):
 
 
 class InvalidCredentialsError(StreamableError):
+    pass
+
+
+class InvalidSessionError(StreamableError):
+    pass
+
+
+class PasswordValidationError(StreamableError):
     pass

@@ -53,7 +53,7 @@ def signup(session: Client, account_info: AccountInfo) -> Response:
     response: Response = session.post(url, json=body.model_dump())
 
     if response.status_code == 400 and "Email already in use" in response.text:
-        raise EmailAlreadyInUseError(response.text, response)
+        raise EmailAlreadyInUseError(response.text)
 
     return response
 
@@ -72,7 +72,42 @@ def login(session: Client, account_info: AccountInfo) -> Response:
             response_data.error == "AuthError"
             and "Invalid username or password" in response_data.message
         ):
-            raise InvalidCredentialsError(response_data.message, response)
+            raise InvalidCredentialsError(response_data.message)
+    except ValidationError:
+        pass
+
+    return response
+
+
+def change_password(
+    session: Client, *, current_password: str, new_password: str
+) -> Response:
+    url: str = AUTH_BASE_URL.path("me", "change_password").build()
+    session_id: str = str(session.cookies.get("session", ""))
+
+    if not session_id:
+        raise InvalidSessionError("No session cookie found. Are you logged in?")
+
+    # there is no API-level check for new and current password equality
+    body: ChangePasswordRequest = ChangePasswordRequest(
+        current_password=current_password,
+        new_password=new_password,
+        session=session_id,
+    )
+
+    response: Response = session.post(url, json=body.model_dump())
+
+    if response.status_code == 400:
+        response_data: ErrorResponse = ErrorResponse.model_validate(response.json())
+        if response_data.error == "ValidationError":
+            raise PasswordValidationError(response_data.message)
+
+    try:
+        # API returns 200 OK even for invalid current password
+        # so we need to check the response body for error messages
+        response_data = ErrorResponse.model_validate(response.json())
+        if response_data.error == "AuthError":
+            raise InvalidCredentialsError("Current password is incorrect.")
     except ValidationError:
         pass
 
