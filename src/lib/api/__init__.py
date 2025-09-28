@@ -1,6 +1,7 @@
 from httpx import Client, Response, get as httpx_get
 from urllib.parse import urljoin, urlencode
 from pydantic import ValidationError
+from typing import Optional
 from .models import *
 from .exceptions import *
 
@@ -78,11 +79,11 @@ def login(session: Client, account_info: AccountInfo) -> Response:
     return response
 
 
-def user_info(session: Client, *, authenticated: bool) -> Response:
+def user_info(session: Optional[Client] = None) -> Response:
     url: str = API_BASE_URL.path("me").build()
-    return session.get(url) if authenticated else httpx_get(url)
+    return session.get(url) if session is not None else httpx_get(url)
 
 
-def subscription_info(session: Client, *, authenticated: bool) -> Response:
+def subscription_info(session: Optional[Client] = None) -> Response:
     url: str = API_BASE_URL.path("me", "subscription", "info").build()
-    return session.get(url) if authenticated else httpx_get(url)
+    return session.get(url) if session is not None else httpx_get(url)

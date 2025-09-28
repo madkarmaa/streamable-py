@@ -1,5 +1,5 @@
 from types import TracebackType
-from typing import Optional, Type, overload, Literal
+from typing import Optional, Type
 from httpx import Client, Response
 from . import *
 from .models import *
@@ -24,59 +24,44 @@ class StreamableClient:
                 "Client is not authenticated. Call login() or signup() successfully first."
             )
 
-    def close(self) -> None:
-        if not self._client.is_closed:
-            self._client.close()
-        self._authenticated = False
-
-    def login(self, account_info: AccountInfo) -> Response:
+    def login(self, account_info: AccountInfo) -> StreamableUser:
         self._authenticated = False
         try:
             response: Response = login(self._client, account_info)
             self._authenticated = True
-            return response
+            return StreamableUser.model_validate(response.json())
         except:
-            self.close()
+            self.logout()
             raise
 
-    def signup(self, account_info: AccountInfo) -> Response:
+    def signup(self, account_info: AccountInfo) -> StreamableUser:
         self._authenticated = False
         try:
             response: Response = signup(self._client, account_info)
             self._authenticated = True
-            return response
+            return StreamableUser.model_validate(response.json())
         except:
-            self.close()
+            self.logout()
             raise
 
-    @overload
-    def get_user_info(self, *, authenticated: Literal[True]) -> StreamableUser: ...
+    def logout(self) -> None:
+        self._ensure_authenticated()
 
-    @overload
-    def get_user_info(
-        self, *, authenticated: Literal[False]
-    ) -> StreamableUnauthenticatedUser: ...
+        # maybe call an API endpoint to invalidate the session on server side in the future
+        # but it's not necessary since login() and signup() will create a new session anyway
 
-    def get_user_info(
-        self, *, authenticated: bool
-    ) -> StreamableUser | StreamableUnauthenticatedUser:
-        if authenticated:
-            self._ensure_authenticated()
+        if not self._client.is_closed:
+            self._client.close()
+        self._authenticated = False
 
-        response: Response = user_info(self._client, authenticated=authenticated)
+    def get_user_info(self) -> StreamableUser:
+        self._ensure_authenticated()
+        response: Response = user_info(self._client)
+        return StreamableUser.model_validate(response.json())
 
-        if authenticated:
-            return StreamableUser.model_validate(response.json())
-
-        return StreamableUnauthenticatedUser.model_validate(response.json())
-
-    def get_subscription_plans(self, *, authenticated: bool = False) -> list[Plan]:
-        if authenticated:
-            self._ensure_authenticated()
-
-        response: Response = subscription_info(
-            self._client, authenticated=authenticated
-        )
+    @staticmethod
+    def get_subscription_plans() -> list[Plan]:
+        response: Response = subscription_info()
         return SubscriptionInfo.model_validate(response.json()).availablePlans
 
     def __enter__(self) -> "StreamableClient":
@@ -88,4 +73,4 @@ class StreamableClient:
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        self.close()
+        self.logout()
