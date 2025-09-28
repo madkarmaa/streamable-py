@@ -47,7 +47,7 @@ def signup(session: Client, account_info: AccountInfo) -> Response:
     url: str = AUTH_BASE_URL.path("users").build()
     body: CreateAccountRequest = CreateAccountRequest.from_account_info(account_info)
 
-    response = session.post(url, json=body.model_dump())
+    response: Response = session.post(url, json=body.model_dump())
     return response
 
 
@@ -55,5 +55,5 @@ def login(session: Client, account_info: AccountInfo) -> Response:
     url: str = AUTH_BASE_URL.path("check").build()
     body: LoginRequest = LoginRequest.from_account_info(account_info)
 
-    response = session.post(url, json=body.model_dump())
+    response: Response = session.post(url, json=body.model_dump())
     return response
