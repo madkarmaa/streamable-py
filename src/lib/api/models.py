@@ -172,3 +172,40 @@ class StreamableUser(StreamableUserBase[PlanOptions]):
     isp: str
     privacy_settings: PrivacySettings
     terms_accepted: Optional[Any]
+
+
+class PlanPricing(BaseModel):
+    id: str
+    cadence: str
+    name: str
+    price: float
+
+
+class Feature(BaseModel):
+    label: str
+    description: str
+
+
+class Plan(BaseModel):
+    name: str
+    description: str
+    monthly: PlanPricing
+    annual: PlanPricing
+    features: list[Feature]
+    productId: str
+
+
+class StorageLimits(BaseModel):
+    exceeded: bool
+
+
+class Limits(BaseModel):
+    storage: StorageLimits
+
+
+class SubscriptionInfo(BaseModel):
+    availablePlans: list[Plan]
+    currentPlan: Optional[Plan] = None
+    nextPlan: Optional[Plan] = None
+    card: Optional[str] = None
+    limits: Limits

@@ -70,6 +70,13 @@ class StreamableClient:
 
         return StreamableUnauthenticatedUser.model_validate(response.json())
 
+    def plans(self, *, authenticated: bool = False) -> list[Plan]:
+        if authenticated:
+            self._ensure_authenticated()
+
+        response: Response = subscription_info(self._client, authenticated=authenticated)
+        return SubscriptionInfo.model_validate(response.json()).availablePlans
+
     def __enter__(self) -> "StreamableClient":
         return self
 
