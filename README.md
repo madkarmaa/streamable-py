@@ -1,11 +1,7 @@
-<h1 align="center">
-    Streamable.py
-    <p>
-        <i> Unofficial python wrapper for the undocumented API of
-            <a href="https://streamable.com">streamable.com</a>
-        </i>
-    </p>
-</h1>
+<h1 align="center">Streamable.py</h1>
+<i align="center">
+    Unofficial python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>
+</i>
 
 > [!CAUTION]
 >
