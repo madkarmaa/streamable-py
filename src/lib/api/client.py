@@ -1,44 +1,38 @@
 from types import TracebackType
-from typing import Optional, Type
+from typing import Optional, Type, overload, Literal
 from httpx import Client, Response
-from . import login, signup
-from .models import AccountInfo
+from . import *
+from .models import *
 
 
 class StreamableClient:
-    _client: Optional[Client] = None
-    _authenticated: bool = False
+    def __init__(self) -> None:
+        self._client: Client = Client()
+        self._authenticated: bool = False
 
     @property
     def is_authenticated(self) -> bool:
         return self._authenticated
 
-    def _reset_state(self) -> None:
-        self._client = None
-        self._authenticated = False
-
-    def _get_or_create_client(self) -> Client:
-        if self._client is None or self._client.is_closed:
-            self._client = Client()
+    @property
+    def unsafe_client(self) -> Client:
         return self._client
 
     def _ensure_authenticated(self) -> None:
-        if not self._authenticated or self._client is None or self._client.is_closed:
+        if not self._authenticated or self._client.is_closed:
             raise RuntimeError(
                 "Client is not authenticated. Call login() or signup() successfully first."
             )
 
     def close(self) -> None:
-        if self._client is not None and not self._client.is_closed:
+        if not self._client.is_closed:
             self._client.close()
-        self._reset_state()
+        self._authenticated = False
 
     def login(self, account_info: AccountInfo) -> Response:
-        self._reset_state()
-        client: Client = self._get_or_create_client()
-
+        self._authenticated = False
         try:
-            response: Response = login(client, account_info)
+            response: Response = login(self._client, account_info)
             self._authenticated = True
             return response
         except:
@@ -46,16 +40,35 @@ class StreamableClient:
             raise
 
     def signup(self, account_info: AccountInfo) -> Response:
-        self._reset_state()
-        client: Client = self._get_or_create_client()
-
+        self._authenticated = False
         try:
-            response: Response = signup(client, account_info)
+            response: Response = signup(self._client, account_info)
             self._authenticated = True
             return response
         except:
             self.close()
             raise
+
+    @overload
+    def user_info(self, *, authenticated: Literal[True]) -> StreamableUser: ...
+
+    @overload
+    def user_info(
+        self, *, authenticated: Literal[False]
+    ) -> StreamableUnauthenticatedUser: ...
+
+    def user_info(
+        self, *, authenticated: bool
+    ) -> StreamableUser | StreamableUnauthenticatedUser:
+        if authenticated:
+            self._ensure_authenticated()
+
+        response: Response = user_info(self._client, authenticated=authenticated)
+
+        if authenticated:
+            return StreamableUser.model_validate(response.json())
+
+        return StreamableUnauthenticatedUser.model_validate(response.json())
 
     def __enter__(self) -> "StreamableClient":
         return self

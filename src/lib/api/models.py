@@ -1,6 +1,7 @@
 import re
 import string
 from secrets import randbelow
+from typing import Any, Optional, Generic, TypeVar
 from pydantic import BaseModel, Field, EmailStr, field_validator, computed_field
 from ..utils import random_string, random_email_domain
 
@@ -80,3 +81,94 @@ class CreateAccountRequest(AccountInfo):
 class ErrorResponse(BaseModel):
     error: str
     message: str
+
+
+class PlanOptions(BaseModel):
+    price: str
+    stripe_id: str
+
+
+class UnauthenticatedPlanOptions(PlanOptions):
+    paypal_id: str
+    paypal_id_notrial: str
+
+
+TPlan = TypeVar("TPlan", bound=PlanOptions)
+
+
+class PrivacySettings(BaseModel):
+    VERSION: int
+    visibility: str
+    allow_sharing: bool
+    allow_download: bool
+    allowed_domain: str
+    hide_view_count: bool
+    domain_restrictions: str
+
+
+class StreamableUserBase(BaseModel, Generic[TPlan]):
+    plan_name: str
+    plan_price: int
+    plan_annual: bool
+    plan_plays: int
+    plan_requests: int
+    plan_max_length: int
+    plan_max_size: float
+    plan_hide_branding: bool
+    plan_options: dict[str, TPlan]
+    socket: str
+    stale: int
+    total_plays: int
+    total_uploads: int
+    total_clips: int
+    total_videos: int
+    embed_plays: int
+    total_embeds: int
+    no_trial: bool
+    promos: list[str]
+
+
+class StreamableUnauthenticatedUser(StreamableUserBase[UnauthenticatedPlanOptions]):
+    pass
+
+
+class StreamableUser(StreamableUserBase[PlanOptions]):
+    id: int
+    user_name: str
+    email: str
+    date_added: int
+    privacy: int
+    bio: str
+    default_sub: Optional[str]
+    stream_key: Optional[str]
+    pro: Optional[Any]
+    ad_tags: Optional[Any]
+    photo_url: Optional[str]
+    watermark_url: Optional[str]
+    parent: Optional[Any]
+    twitter: str
+    embed_options: Optional[Any]
+    subreddits: Optional[Any]
+    watermark_link: Optional[str]
+    plan: Optional[Any]
+    dark_mode: Optional[bool]
+    plays_remaining: int
+    requests_remaining: int
+    allow_download: Optional[bool]
+    remove_branding: bool
+    hide_sharing: Optional[Any]
+    allowed_domain: str
+    disable_streamable: bool
+    subscription_status: Optional[str]
+    payment_processor: Optional[str]
+    hosting_provider: bool
+    email_verified: bool
+    requires_email_verification: bool
+    restricted: bool
+    password_set: bool
+    beta: bool
+    color: str
+    country: str
+    isp: str
+    privacy_settings: PrivacySettings
+    terms_accepted: Optional[Any]

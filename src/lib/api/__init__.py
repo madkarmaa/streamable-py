@@ -1,4 +1,4 @@
-from httpx import Client, Response
+from httpx import Client, Response, get as httpx_get
 from urllib.parse import urljoin, urlencode
 from pydantic import ValidationError
 from .models import *
@@ -76,3 +76,8 @@ def login(session: Client, account_info: AccountInfo) -> Response:
         pass
 
     return response
+
+
+def user_info(session: Client, *, authenticated: bool) -> Response:
+    url: str = API_BASE_URL.path("me").build()
+    return session.get(url) if authenticated else httpx_get(url)
