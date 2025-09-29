@@ -91,6 +91,26 @@ class StreamableClient:
         self._ensure_authenticated()
         change_player_color(self._client, color=color)
 
+    def change_privacy_settings(
+        self,
+        *,
+        allow_download: Optional[bool] = None,
+        allow_sharing: Optional[bool] = None,
+        hide_view_count: Optional[bool] = None,
+        visibility: Optional[Literal["public", "private"]] = None,
+    ) -> PrivacySettings:
+        self._ensure_authenticated()
+
+        response: Response = change_privacy_settings(
+            self._client,
+            allow_download=allow_download,
+            allow_sharing=allow_sharing,
+            hide_view_count=hide_view_count,
+            visibility=visibility,
+        )
+
+        return StreamableUser.model_validate(response.json()).privacy_settings
+
     def __enter__(self) -> "StreamableClient":
         return self
 

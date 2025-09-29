@@ -133,3 +133,25 @@ def change_player_color(session: Client, *, color: str) -> Response:
         raise InvalidPlayerColorError(color) from e
 
     return session.put(url, json=body.model_dump())
+
+
+def change_privacy_settings(
+    session: Client,
+    *,
+    allow_download: Optional[bool] = None,
+    allow_sharing: Optional[bool] = None,
+    hide_view_count: Optional[bool] = None,
+    visibility: Optional[Literal["public", "private"]] = None,
+) -> Response:
+    url: str = API_BASE_URL.path("me", "settings").build()
+
+    body: ChangePrivacySettingsRequest = ChangePrivacySettingsRequest(
+        allow_download=allow_download,
+        allow_sharing=allow_sharing,
+        hide_view_count=hide_view_count,
+        visibility=visibility,
+    )
+
+    return session.patch(
+        url, json=body.model_dump(exclude_none=True, exclude_unset=True)
+    )

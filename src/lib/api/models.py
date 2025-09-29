@@ -1,7 +1,7 @@
 import re
 import string
 from secrets import randbelow
-from typing import Optional, Annotated
+from typing import Literal, Optional, Annotated
 from pydantic import (
     BaseModel,
     Field,
@@ -65,7 +65,7 @@ class LoginRequest(AccountInfo):
 class CreateAccountRequest(AccountInfo):
     @computed_field
     @property
-    def verification_redirect(self) -> str:
+    def verification_redirect(self) -> Literal["https://streamable.com?alert=verified"]:
         return "https://streamable.com?alert=verified"
 
     @computed_field
@@ -100,6 +100,18 @@ class ChangePlayerColorRequest(BaseModel):
             pattern=r"^#[0-9A-Fa-f]{6}$", strip_whitespace=True, to_lower=True
         ),
     ]
+
+
+class ChangePrivacySettingsRequest(BaseModel):
+    allow_download: Optional[bool] = None
+    allow_sharing: Optional[bool] = None
+    hide_view_count: Optional[bool] = None
+    visibility: Optional[Literal["public", "private"]] = None
+
+    @computed_field
+    @property
+    def domain_restrictions(self) -> Literal["off"]:
+        return "off"
 
 
 class ErrorResponse(BaseModel):
