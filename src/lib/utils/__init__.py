@@ -1,4 +1,6 @@
 from secrets import choice, SystemRandom
+from pathlib import Path
+from pymediainfo import MediaInfo, Track
 
 
 def random_string(length: int, *charsets: str) -> str:
@@ -132,3 +134,34 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
             )
 
     return f"#{r:02X}{g:02X}{b:02X}"
+
+
+def _ensure_is_file(path: Path) -> None:
+    path = path.resolve()
+    if not path.is_file() or not path.exists():
+        raise ValueError(f"Path '{path}' is not a valid file")
+
+
+def get_video_duration(video_file: Path) -> int:
+    video_file = video_file.resolve()
+    _ensure_is_file(video_file)
+
+    media_info: MediaInfo = MediaInfo.parse(video_file)
+    tracks: list[Track] = media_info.tracks  # type: ignore - the library has no type hints :(
+
+    # https://github.com/sbraz/pymediainfo?tab=readme-ov-file#example-snippet-1
+    for track in tracks:
+        if track.track_type == "Video":
+            return int(track.duration)  # again, no type hints
+
+    raise ValueError(f"File '{video_file}' is not a valid video file")
+
+
+def is_more_than_10_minutes(duration_ms: int) -> bool:
+    return duration_ms > 10 * 60 * 1000  # 10 minutes in milliseconds
+
+
+def is_more_than_250mb(file: Path) -> bool:
+    file = file.resolve()
+    _ensure_is_file(file)
+    return file.stat().st_size > 250 * 1024 * 1024  # 250 MB in bytes
