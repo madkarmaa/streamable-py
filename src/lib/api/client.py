@@ -1,6 +1,7 @@
 from types import TracebackType
 from typing import Optional, Type, Union, overload
 from httpx import Client, Response
+from pathlib import Path
 from .exceptions import InvalidSessionError
 from . import *
 from .models import *
@@ -70,9 +71,10 @@ class StreamableClient:
         response: Response = user_info(self._client)
         return StreamableUser.model_validate(response.json())
 
-    @staticmethod
-    def get_subscription_plans() -> list[Plan]:
-        response: Response = subscription_info()
+    def get_subscription_plans(self) -> list[Plan]:
+        response: Response = subscription_info(
+            self._client if self._authenticated else None
+        )
         return SubscriptionInfo.model_validate(response.json()).availablePlans
 
     def change_password(self, new_password: str) -> None:
@@ -158,6 +160,16 @@ class StreamableClient:
             if label.name == name:
                 return label
         return None
+
+    def _get_upload_info(self, video_file: Path) -> UploadInfo:
+        video_file = video_file.resolve()
+
+        response: Response = shortcode(
+            session=self._client if self._authenticated else None,
+            video_size=video_file.stat().st_size,
+        )
+
+        return UploadInfo.model_validate(response.json())
 
     def __enter__(self) -> "StreamableClient":
         return self

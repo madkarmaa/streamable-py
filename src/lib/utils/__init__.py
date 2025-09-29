@@ -1,6 +1,7 @@
 from secrets import choice, SystemRandom
 from pathlib import Path
 from pymediainfo import MediaInfo, Track
+from typing import Callable, Generator, Optional
 
 
 def random_string(length: int, *charsets: str) -> str:
@@ -165,3 +166,28 @@ def is_more_than_250mb(file: Path) -> bool:
     file = file.resolve()
     _ensure_is_file(file)
     return file.stat().st_size > 250 * 1024 * 1024  # 250 MB in bytes
+
+
+def stream_file(
+    file: Path,
+    *,
+    chunk_size: int = 1024 * 8,
+    progress_cb: Optional[Callable[[float], None]] = None,
+    complete_cb: Optional[Callable[[], None]] = None,
+) -> Generator[bytes, None, None]:
+    file = file.resolve()
+    _ensure_is_file(file)
+
+    file_size: int = file.stat().st_size
+    bytes_sent: int = 0
+
+    with file.open("rb") as f:
+        while chunk := f.read(chunk_size):
+            yield chunk
+            bytes_sent += len(chunk)
+
+            if progress_cb is not None:
+                progress_cb(bytes_sent / file_size * 100)
+
+    if complete_cb is not None:
+        complete_cb()

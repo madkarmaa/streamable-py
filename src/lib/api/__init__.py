@@ -1,4 +1,9 @@
-from httpx import Client, Response, get as httpx_get
+from httpx import (
+    Client,
+    Response,
+    get as httpx_get,
+    post as httpx_post,
+)
 from urllib.parse import urljoin, urlencode
 from pydantic import ValidationError
 from typing import Optional
@@ -191,3 +196,41 @@ def delete_label(session: Client, *, label_id: int) -> Response:
 def labels(session: Client) -> Response:
     url: str = API_BASE_URL.path("labels").build()
     return session.get(url)
+
+
+def shortcode(*, session: Optional[Client] = None, video_size: int) -> Response:
+    url: str = (
+        API_BASE_URL.path("uploads", "shortcode")
+        .query(size=str(video_size), version="unknown")
+        .build()
+    )
+    return session.get(url) if session is not None else httpx_get(url)
+
+
+def initialize_video_upload(
+    *,
+    session: Optional[Client] = None,
+    shortcode: str,
+    original_name: str,
+    original_size: int,
+    title: str,
+) -> Response:
+    url: str = API_BASE_URL.path("videos", shortcode, "initialize").build()
+    body: InitializeVideoUploadRequest = InitializeVideoUploadRequest(
+        original_name=original_name, original_size=original_size, title=title
+    )
+    return (
+        session.post(url, json=body.model_dump())
+        if session is not None
+        else httpx_post(url, json=body.model_dump())
+    )
+
+
+def cancel_video_upload(
+    *, session: Optional[Client] = None, shortcode: str
+) -> Response:
+    url: str = API_BASE_URL.path("videos", shortcode, "cancel").build()
+    return session.post(url) if session is not None else httpx_post(url)
+
+
+# https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html

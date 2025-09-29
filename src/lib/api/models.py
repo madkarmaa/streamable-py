@@ -122,6 +122,17 @@ class RenameLabelRequest(CreateLabelRequest):
     pass
 
 
+class InitializeVideoUploadRequest(BaseModel):
+    original_name: str
+    original_size: int
+    title: str
+
+    @computed_field
+    @property
+    def upload_source(self) -> Literal["web"]:
+        return "web"
+
+
 class ErrorResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -222,3 +233,72 @@ class UserLabel(Label):
 
 class UserLabels(BaseModel):
     userLabels: list[UserLabel]
+
+
+class Credentials(BaseModel):
+    accessKeyId: str
+    secretAccessKey: str
+    sessionToken: str
+
+
+class Fields(BaseModel):
+    key: str
+    acl: str
+    bucket: str
+    X_Amz_Algorithm: str = Field(alias="X-Amz-Algorithm")
+    X_Amz_Credential: str = Field(alias="X-Amz-Credential")
+    X_Amz_Date: str = Field(alias="X-Amz-Date")
+    X_Amz_Security_Token: str = Field(alias="X-Amz-Security-Token")
+    Policy: str
+    X_Amz_Signature: str = Field(alias="X-Amz-Signature")
+
+
+class PlanLimits(BaseModel):
+    is_exceeding_free_plan_limits: bool
+    is_exceeding_free_plan_duration_limit: bool
+    is_exceeding_free_plan_size_limit: bool
+    should_restrict_playback: bool
+    has_owner_without_plan: bool
+
+
+class Video(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    shortcode: str
+    user_id: int
+    session_id: str
+    upload_source: str
+    user_name: str
+    date_added: int
+    url: str
+    plan_limits: PlanLimits
+
+
+class Options(BaseModel):
+    preset: str
+    shortcode: str
+    screenshot: bool
+
+
+class TranscoderOptions(BaseModel):
+    url: str
+    token: str
+    shortcode: str
+    size: int
+
+
+class UploadInfo(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    accelerated: bool
+    bucket: str
+    credentials: Credentials
+    fields: Fields
+    url: str
+    video: Video
+    options: Options
+    shortcode: str
+    key: str
+    time: int
+    transcoder: Optional[str]
+    transcoder_options: TranscoderOptions
