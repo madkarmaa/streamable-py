@@ -1,4 +1,7 @@
-<h1 align="center">Streamable.py</h1>
+<h1 align="center">
+    <img src="https://ui-statics-cf.streamable.com/web/static/media/logo.9593dd2b0e8f4b4f68c2.gif" width="75" height="auto">
+    <p>Streamable.py</p>
+</h1>
 <p align="center">
     <i>
         Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>
