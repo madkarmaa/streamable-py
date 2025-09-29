@@ -24,3 +24,7 @@ class InvalidPlayerColorError(StreamableError):
         super().__init__(
             f"Invalid color syntax: expected hex color code, got '{color}'"
         )
+
+
+class InvalidPrivacySettingsError(StreamableError):
+    pass

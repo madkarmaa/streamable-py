@@ -143,6 +143,14 @@ def change_privacy_settings(
     hide_view_count: Optional[bool] = None,
     visibility: Optional[Literal["public", "private"]] = None,
 ) -> Response:
+    if (
+        allow_download is None
+        and allow_sharing is None
+        and hide_view_count is None
+        and visibility is None
+    ):
+        raise InvalidPrivacySettingsError("At least one setting must be provided.")
+
     url: str = API_BASE_URL.path("me", "settings").build()
 
     body: ChangePrivacySettingsRequest = ChangePrivacySettingsRequest(
