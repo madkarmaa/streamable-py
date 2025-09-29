@@ -1,5 +1,5 @@
 from types import TracebackType
-from typing import Optional, Type
+from typing import Optional, Type, Union, overload
 from httpx import Client, Response
 from .exceptions import InvalidSessionError
 from . import *
@@ -110,6 +110,54 @@ class StreamableClient:
         )
 
         return StreamableUser.model_validate(response.json()).privacy_settings
+
+    def create_label(self, name: str) -> Label:
+        self._ensure_authenticated()
+        response: Response = create_label(self._client, name=name)
+        return Label.model_validate(response.json())
+
+    @overload
+    def rename_label(self, label: int, new_name: str) -> Label: ...
+    @overload
+    def rename_label(self, label: Label, new_name: str) -> Label: ...
+    def rename_label(self, label: Union[int, Label], new_name: str) -> Label:
+        self._ensure_authenticated()
+
+        if isinstance(label, Label):
+            label_id: int = label.id
+        else:
+            label_id: int = label
+
+        response: Response = rename_label(
+            self._client, label_id=label_id, new_name=new_name
+        )
+        return Label.model_validate(response.json())
+
+    @overload
+    def delete_label(self, label: int) -> None: ...
+    @overload
+    def delete_label(self, label: Label) -> None: ...
+    def delete_label(self, label: Union[int, Label]) -> None:
+        self._ensure_authenticated()
+
+        if isinstance(label, Label):
+            label_id: int = label.id
+        else:
+            label_id: int = label
+
+        delete_label(self._client, label_id=label_id)
+
+    def get_user_labels(self) -> list[UserLabel]:
+        self._ensure_authenticated()
+        response: Response = labels(self._client)
+        return UserLabels.model_validate(response.json()).userLabels
+
+    def get_label_by_name(self, name: str) -> Optional[UserLabel]:
+        labels: list[UserLabel] = self.get_user_labels()
+        for label in labels:
+            if label.name == name:
+                return label
+        return None
 
     def __enter__(self) -> "StreamableClient":
         return self

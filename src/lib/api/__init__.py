@@ -163,3 +163,31 @@ def change_privacy_settings(
     return session.patch(
         url, json=body.model_dump(exclude_none=True, exclude_unset=True)
     )
+
+
+def create_label(session: Client, *, name: str) -> Response:
+    url: str = API_BASE_URL.path("labels").build()
+    body: CreateLabelRequest = CreateLabelRequest(name=name)
+
+    response: Response = session.post(url, json=body.model_dump())
+
+    if response.status_code == 409:
+        raise LabelAlreadyExistsError(name)
+
+    return response
+
+
+def rename_label(session: Client, *, label_id: int, new_name: str) -> Response:
+    url: str = API_BASE_URL.path("labels", str(label_id)).build()
+    body: RenameLabelRequest = RenameLabelRequest(name=new_name)
+    return session.patch(url, json=body.model_dump())
+
+
+def delete_label(session: Client, *, label_id: int) -> Response:
+    url: str = API_BASE_URL.path("labels", str(label_id)).build()
+    return session.delete(url)  # there is no API-level check for the label existence
+
+
+def labels(session: Client) -> Response:
+    url: str = API_BASE_URL.path("labels").build()
+    return session.get(url)

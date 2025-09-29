@@ -114,6 +114,14 @@ class ChangePrivacySettingsRequest(BaseModel):
         return "off"
 
 
+class CreateLabelRequest(BaseModel):
+    name: str
+
+
+class RenameLabelRequest(CreateLabelRequest):
+    pass
+
+
 class ErrorResponse(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
@@ -196,3 +204,21 @@ class SubscriptionInfo(BaseModel):
 
     availablePlans: list[Plan]
     limits: Limits
+
+
+class Label(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    id: int
+    name: str
+
+
+class UserLabel(Label):
+    count: int
+
+    def to_label(self) -> Label:
+        return Label.model_validate(self.model_dump())
+
+
+class UserLabels(BaseModel):
+    userLabels: list[UserLabel]

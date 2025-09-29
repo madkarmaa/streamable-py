@@ -28,3 +28,8 @@ class InvalidPlayerColorError(StreamableError):
 
 class InvalidPrivacySettingsError(StreamableError):
     pass
+
+
+class LabelAlreadyExistsError(StreamableError):
+    def __init__(self, label_name: str) -> None:
+        super().__init__(f"Label '{label_name}' already exists.")
