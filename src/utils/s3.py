@@ -3,6 +3,8 @@ AWS S3 Signature Version 4 utility for generating authentication headers.
 
 This module provides functions to calculate AWS Signature V4 signatures
 and build headers for S3 upload requests.
+
+https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 """
 
 import hashlib

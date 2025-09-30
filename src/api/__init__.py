@@ -231,6 +231,3 @@ def cancel_video_upload(
 ) -> Response:
     url: str = API_BASE_URL.path("videos", shortcode, "cancel").build()
     return session.post(url) if session is not None else httpx_post(url)
-
-
-# https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
