@@ -161,7 +161,7 @@ class StreamableClient:
                 return label
         return None
 
-    def _get_upload_info(self, video_file: Path) -> UploadInfo:
+    def _get_new_upload_info(self, video_file: Path) -> UploadInfo:
         video_file = video_file.resolve()
 
         response: Response = shortcode(
