@@ -6,7 +6,8 @@ from httpx import (
 )
 from urllib.parse import urljoin, urlencode
 from pydantic import ValidationError
-from typing import Optional
+from typing import Any, Optional
+from pathlib import Path
 from .models import *
 from .exceptions import *
 
@@ -198,10 +199,10 @@ def labels(session: Client) -> Response:
     return session.get(url)
 
 
-def shortcode(*, session: Optional[Client] = None, video_size: int) -> Response:
+def shortcode(*, session: Optional[Client] = None, video_file: Path) -> Response:
     url: str = (
         API_BASE_URL.path("uploads", "shortcode")
-        .query(size=str(video_size), version="unknown")
+        .query(size=str(video_file.stat().st_size), version="unknown")
         .build()
     )
     return session.get(url) if session is not None else httpx_get(url)
@@ -210,14 +211,15 @@ def shortcode(*, session: Optional[Client] = None, video_size: int) -> Response:
 def initialize_video_upload(
     *,
     session: Optional[Client] = None,
-    shortcode: str,
-    original_name: str,
-    original_size: int,
-    title: str,
+    upload_info: UploadInfo,
+    video_file: Path,
+    title: Optional[str] = None,
 ) -> Response:
-    url: str = API_BASE_URL.path("videos", shortcode, "initialize").build()
+    url: str = API_BASE_URL.path("videos", upload_info.shortcode, "initialize").build()
     body: InitializeVideoUploadRequest = InitializeVideoUploadRequest(
-        original_name=original_name, original_size=original_size, title=title
+        original_name=video_file.name,
+        original_size=video_file.stat().st_size,
+        title=title if title else video_file.stem,
     )
     return (
         session.post(url, json=body.model_dump())
@@ -231,3 +233,45 @@ def cancel_video_upload(
 ) -> Response:
     url: str = API_BASE_URL.path("videos", shortcode, "cancel").build()
     return session.post(url) if session is not None else httpx_post(url)
+
+
+def upload_video_file_to_s3(
+    *, session: Optional[Client] = None, upload_info: UploadInfo, video_file: Path
+) -> Response:
+    url: str = upload_info.transcoder_options.url
+
+    with video_file.open("rb") as f:
+        return (
+            session.put(url, content=f)
+            if session is not None
+            else httpx_post(url, content=f)
+        )
+
+
+def transcode_video_after_upload(
+    *,
+    session: Optional[Client] = None,
+    upload_info: UploadInfo,
+) -> Response:
+    url: str = API_BASE_URL.path("transcode", upload_info.shortcode).build()
+    return (
+        session.post(url, json=upload_info.transcoder_options.model_dump())
+        if session is not None
+        else httpx_post(url, json=upload_info.transcoder_options.model_dump())
+    )
+
+
+def fetch_video_info(*, session: Optional[Client] = None, shortcode: str) -> Response:
+    url: str = API_BASE_URL.path("videos", shortcode).query(version="0").build()
+    return session.get(url) if session is not None else httpx_get(url)
+
+
+def track_upload(
+    *, session: Optional[Client] = None, upload_info: UploadInfo, body: dict[str, Any]
+) -> Response:
+    url: str = API_BASE_URL.path("uploads", upload_info.shortcode, "track").build()
+    return (
+        session.post(url, json=body)
+        if session is not None
+        else httpx_post(url, json=body)
+    )

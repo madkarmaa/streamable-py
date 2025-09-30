@@ -33,3 +33,17 @@ class InvalidPrivacySettingsError(StreamableError):
 class LabelAlreadyExistsError(StreamableError):
     def __init__(self, label_name: str) -> None:
         super().__init__(f"Label '{label_name}' already exists.")
+
+
+class VideoTooLargeError(StreamableError):
+    def __init__(self, size: int, max_size: int) -> None:
+        super().__init__(
+            f"Video size {size} exceeds maximum allowed size of {max_size}."
+        )
+
+
+class VideoTooLongError(StreamableError):
+    def __init__(self, length: int, max_length: int) -> None:
+        super().__init__(
+            f"Video length {length} exceeds maximum allowed length of {max_length}."
+        )

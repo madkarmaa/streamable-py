@@ -5,6 +5,7 @@ from pathlib import Path
 from .exceptions import InvalidSessionError
 from . import *
 from .models import *
+from ..utils import is_more_than_10_minutes, is_more_than_250mb, get_video_duration
 
 
 class StreamableClient:
@@ -161,15 +162,57 @@ class StreamableClient:
                 return label
         return None
 
-    def _get_new_upload_info(self, video_file: Path) -> UploadInfo:
+    def upload_video(self, video_file: Path) -> Any:
         video_file = video_file.resolve()
 
-        response: Response = shortcode(
+        if is_more_than_250mb(video_file):
+            raise VideoTooLargeError(video_file.stat().st_size, 250 * 1024 * 1024)
+
+        if is_more_than_10_minutes(get_video_duration(video_file)):
+            raise VideoTooLongError(get_video_duration(video_file), 10 * 60 * 1000)
+
+        shortcode_response: Response = shortcode(
             session=self._client if self._authenticated else None,
-            video_size=video_file.stat().st_size,
+            video_file=video_file,
         )
 
-        return UploadInfo.model_validate(response.json())
+        upload_info: UploadInfo = UploadInfo.model_validate(shortcode_response.json())
+
+        initialize_video_upload(
+            session=self._client if self._authenticated else None,
+            upload_info=upload_info,
+            video_file=video_file,
+        )
+
+        upload_video_file_to_s3(
+            session=self._client if self._authenticated else None,
+            upload_info=upload_info,
+            video_file=video_file,
+        )
+
+        transcode_video_after_upload(
+            session=self._client if self._authenticated else None,
+            upload_info=upload_info,
+        )
+
+        track_upload(
+            session=self._client if self._authenticated else None,
+            upload_info=upload_info,
+            body={"event": "complete"},
+        )
+
+        fetch_video_info_response: Response = fetch_video_info(
+            session=self._client if self._authenticated else None,
+            shortcode=upload_info.shortcode,
+        )
+
+        track_upload(
+            session=self._client if self._authenticated else None,
+            upload_info=upload_info,
+            body={"event": "progress", "uploadPercent": 100},
+        )
+
+        return fetch_video_info_response.json()
 
     def __enter__(self) -> "StreamableClient":
         return self
