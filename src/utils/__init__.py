@@ -2,6 +2,7 @@ from secrets import choice, SystemRandom
 from pathlib import Path
 from pymediainfo import MediaInfo, Track
 from typing import Callable, Generator, Optional
+from ..api.exceptions import VideoTooLargeError, VideoTooLongError
 
 
 def random_string(length: int, *charsets: str) -> str:
@@ -158,14 +159,28 @@ def get_video_duration(video_file: Path) -> int:
     raise ValueError(f"File '{video_file}' is not a valid video file")
 
 
-def is_more_than_10_minutes(duration_ms: int) -> bool:
-    return duration_ms > 10 * 60 * 1000  # 10 minutes in milliseconds
+def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
+    ten_minutes_ms: int = 10 * 60 * 1000
+    video_file = video_file.resolve()
+
+    _ensure_is_file(video_file)
+    video_duration: int = get_video_duration(video_file)
+
+    if video_duration > ten_minutes_ms:
+        raise VideoTooLongError(
+            video_file, length=video_duration, max_length=ten_minutes_ms
+        )
 
 
-def is_more_than_250mb(file: Path) -> bool:
+def ensure_is_not_more_than_250mb(file: Path) -> None:
+    two_hundred_fifty_mb: int = 250 * 1024 * 1024
     file = file.resolve()
+
     _ensure_is_file(file)
-    return file.stat().st_size > 250 * 1024 * 1024  # 250 MB in bytes
+    file_size: int = file.stat().st_size
+
+    if file_size > two_hundred_fifty_mb:
+        raise VideoTooLargeError(file, size=file_size, max_size=two_hundred_fifty_mb)
 
 
 def stream_file(

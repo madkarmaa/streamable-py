@@ -1,3 +1,6 @@
+from pathlib import Path
+
+
 class StreamableError(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)
@@ -36,14 +39,14 @@ class LabelAlreadyExistsError(StreamableError):
 
 
 class VideoTooLargeError(StreamableError):
-    def __init__(self, size: int, max_size: int) -> None:
+    def __init__(self, video_file: Path, size: int, max_size: int) -> None:
         super().__init__(
-            f"Video size {size} exceeds maximum allowed size of {max_size}."
+            f"{video_file} size {size} exceeds maximum allowed size of {max_size}."
         )
 
 
 class VideoTooLongError(StreamableError):
-    def __init__(self, length: int, max_length: int) -> None:
+    def __init__(self, video_file: Path, *, length: int, max_length: int) -> None:
         super().__init__(
-            f"Video length {length} exceeds maximum allowed length of {max_length}."
+            f"{video_file} length {length}ms exceeds maximum allowed length of {max_length}ms."
         )

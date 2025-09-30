@@ -5,7 +5,7 @@ from pathlib import Path
 from .exceptions import InvalidSessionError
 from . import *
 from .models import *
-from ..utils import is_more_than_10_minutes, is_more_than_250mb, get_video_duration
+from ..utils import ensure_is_not_more_than_10_minutes, ensure_is_not_more_than_250mb
 
 
 class StreamableClient:
@@ -165,11 +165,8 @@ class StreamableClient:
     def upload_video(self, video_file: Path) -> Any:
         video_file = video_file.resolve()
 
-        if is_more_than_250mb(video_file):
-            raise VideoTooLargeError(video_file.stat().st_size, 250 * 1024 * 1024)
-
-        if is_more_than_10_minutes(get_video_duration(video_file)):
-            raise VideoTooLongError(get_video_duration(video_file), 10 * 60 * 1000)
+        ensure_is_not_more_than_250mb(video_file)
+        ensure_is_not_more_than_10_minutes(video_file)
 
         shortcode_response: Response = shortcode(
             session=self._client if self._authenticated else None,
