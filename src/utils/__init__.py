@@ -171,7 +171,7 @@ def is_more_than_250mb(file: Path) -> bool:
 def stream_file(
     file: Path,
     *,
-    chunk_size: int = 1024 * 8,
+    chunk_size: int = 8 * 1024 * 1024,  # 8 MB
     progress_cb: Optional[Callable[[float], None]] = None,
     complete_cb: Optional[Callable[[], None]] = None,
 ) -> Generator[bytes, None, None]:
