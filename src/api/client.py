@@ -162,7 +162,7 @@ class StreamableClient:
                 return label
         return None
 
-    def upload_video(self, video_file: Path) -> Any:
+    def upload_video(self, video_file: Path) -> Video:
         video_file = video_file.resolve()
 
         ensure_is_not_more_than_250mb(video_file)
@@ -187,29 +187,12 @@ class StreamableClient:
             video_file=video_file,
         )
 
-        transcode_video_after_upload(
+        transcoding_response: Response = transcode_video_after_upload(
             session=self._client if self._authenticated else None,
             upload_info=upload_info,
         )
 
-        track_upload(
-            session=self._client if self._authenticated else None,
-            upload_info=upload_info,
-            body={"event": "complete"},
-        )
-
-        fetch_video_info_response: Response = fetch_video_info(
-            session=self._client if self._authenticated else None,
-            shortcode=upload_info.shortcode,
-        )
-
-        track_upload(
-            session=self._client if self._authenticated else None,
-            upload_info=upload_info,
-            body={"event": "progress", "uploadPercent": 100},
-        )
-
-        return fetch_video_info_response.json()
+        return Video.model_validate(transcoding_response.json())
 
     def __enter__(self) -> "StreamableClient":
         return self

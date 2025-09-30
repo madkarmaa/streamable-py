@@ -6,10 +6,11 @@ from httpx import (
 )
 from urllib.parse import urljoin, urlencode
 from pydantic import ValidationError
-from typing import Any, Optional
+from typing import Optional
 from pathlib import Path
 from .models import *
 from .exceptions import *
+from ..utils.s3 import build_s3_upload_headers
 
 
 class URLBuilder:
@@ -238,13 +239,19 @@ def cancel_video_upload(
 def upload_video_file_to_s3(
     *, session: Optional[Client] = None, upload_info: UploadInfo, video_file: Path
 ) -> Response:
-    url: str = upload_info.transcoder_options.url
+    url: str = f"https://{upload_info.bucket}.s3.amazonaws.com/{upload_info.fields.key}"
+
+    headers: dict[str, str] = build_s3_upload_headers(
+        upload_info,
+        content_length=video_file.stat().st_size,
+        use_current_timestamp=True,
+    )
 
     with video_file.open("rb") as f:
         return (
-            session.put(url, content=f)
+            session.put(url, content=f, headers=headers)
             if session is not None
-            else httpx_post(url, content=f)
+            else httpx_post(url, content=f, headers=headers)
         )
 
 
@@ -258,20 +265,4 @@ def transcode_video_after_upload(
         session.post(url, json=upload_info.transcoder_options.model_dump())
         if session is not None
         else httpx_post(url, json=upload_info.transcoder_options.model_dump())
-    )
-
-
-def fetch_video_info(*, session: Optional[Client] = None, shortcode: str) -> Response:
-    url: str = API_BASE_URL.path("videos", shortcode).query(version="0").build()
-    return session.get(url) if session is not None else httpx_get(url)
-
-
-def track_upload(
-    *, session: Optional[Client] = None, upload_info: UploadInfo, body: dict[str, Any]
-) -> Response:
-    url: str = API_BASE_URL.path("uploads", upload_info.shortcode, "track").build()
-    return (
-        session.post(url, json=body)
-        if session is not None
-        else httpx_post(url, json=body)
     )

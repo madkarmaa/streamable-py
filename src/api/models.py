@@ -265,10 +265,6 @@ class Video(BaseModel):
     model_config = ConfigDict(extra="ignore")
 
     shortcode: str
-    user_id: int
-    session_id: str
-    upload_source: str
-    user_name: str
     date_added: int
     url: str
     plan_limits: PlanLimits
