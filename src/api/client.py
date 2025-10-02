@@ -14,13 +14,16 @@ class StreamableClient:
         self._authenticated: bool = False
         self._account_info: Optional[AccountInfo] = None
 
+
     @property
     def is_authenticated(self) -> bool:
         return self._authenticated
 
+
     @property
     def unsafe_client(self) -> Client:
         return self._client
+
 
     def _ensure_authenticated(self) -> None:
         if (
@@ -31,6 +34,7 @@ class StreamableClient:
             raise InvalidSessionError(
                 "Client is not authenticated. Call login() or signup() successfully first."
             )
+
 
     def login(self, account_info: AccountInfo) -> StreamableUser:
         self._authenticated = False
@@ -43,6 +47,7 @@ class StreamableClient:
             self.logout()
             raise
 
+
     def signup(self, account_info: AccountInfo) -> StreamableUser:
         self._authenticated = False
         try:
@@ -53,6 +58,7 @@ class StreamableClient:
         except:
             self.logout()
             raise
+
 
     def logout(self) -> None:
         # maybe call an API endpoint to invalidate the session on server side in the future
@@ -65,10 +71,12 @@ class StreamableClient:
         self._account_info = None
         self._client = Client()
 
+
     def get_user_info(self) -> StreamableUser:
         self._ensure_authenticated()
         response: Response = user_info(self._client)
         return StreamableUser.model_validate(response.json())
+
 
     def change_password(self, new_password: str) -> None:
         self._ensure_authenticated()
@@ -82,9 +90,11 @@ class StreamableClient:
 
         self._account_info.password = new_password
 
+
     def change_player_color(self, color: str) -> None:
         self._ensure_authenticated()
         change_player_color(self._client, color=color)
+
 
     def change_privacy_settings(
         self,
@@ -106,10 +116,12 @@ class StreamableClient:
 
         return StreamableUser.model_validate(response.json()).privacy_settings
 
+
     def create_label(self, name: str) -> Label:
         self._ensure_authenticated()
         response: Response = create_label(self._client, name=name)
         return Label.model_validate(response.json())
+
 
     @overload
     def rename_label(self, label: int, new_name: str) -> Label: ...
@@ -128,6 +140,7 @@ class StreamableClient:
         )
         return Label.model_validate(response.json())
 
+
     @overload
     def delete_label(self, label: int) -> None: ...
     @overload
@@ -142,10 +155,12 @@ class StreamableClient:
 
         delete_label(self._client, label_id=label_id)
 
+
     def get_user_labels(self) -> list[UserLabel]:
         self._ensure_authenticated()
         response: Response = labels(self._client)
         return UserLabels.model_validate(response.json()).userLabels
+
 
     def get_label_by_name(self, name: str) -> Optional[UserLabel]:
         labels: list[UserLabel] = self.get_user_labels()
@@ -153,6 +168,7 @@ class StreamableClient:
             if label.name == name:
                 return label
         return None
+
 
     def upload_video(self, video_file: Path) -> Video:
         video_file = video_file.resolve()
@@ -180,8 +196,10 @@ class StreamableClient:
 
         return Video.model_validate(transcoding_response.json())
 
+
     def __enter__(self) -> "StreamableClient":
         return self
+
 
     def __exit__(
         self,
