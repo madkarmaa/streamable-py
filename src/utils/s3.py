@@ -1,5 +1,4 @@
-"""
-AWS S3 Signature Version 4 utility for generating authentication headers.
+"""AWS S3 Signature Version 4 utility for generating authentication headers.
 
 This module provides functions to calculate AWS Signature V4 signatures
 and build headers for S3 upload requests.
@@ -16,8 +15,7 @@ from ..api.models import UploadInfo
 
 
 def _sign(key: bytes, msg: str) -> bytes:
-    """
-    Create HMAC-SHA256 signature.
+    """Create HMAC-SHA256 signature.
 
     Args:
         key: The signing key
@@ -32,8 +30,7 @@ def _sign(key: bytes, msg: str) -> bytes:
 def _get_signature_key(
     secret_key: str, date_stamp: str, region: str, service: str
 ) -> bytes:
-    """
-    Derive the signing key for AWS Signature Version 4.
+    """Derive the signing key for AWS Signature Version 4.
 
     Args:
         secret_key: AWS secret access key
@@ -52,8 +49,7 @@ def _get_signature_key(
 
 
 def _uri_encode(s: str, encode_slash: bool = True) -> str:
-    """
-    URI encode according to AWS requirements.
+    """URI encode according to AWS requirements.
 
     Args:
         s: String to encode
@@ -75,8 +71,7 @@ def _create_canonical_request(
     signed_headers: str,
     payload_hash: str,
 ) -> str:
-    """
-    Create the canonical request string.
+    """Create the canonical request string.
 
     Args:
         method: HTTP method (e.g., 'PUT', 'GET')
@@ -104,8 +99,7 @@ def _create_canonical_request(
 def _create_string_to_sign(
     timestamp: str, credential_scope: str, canonical_request: str
 ) -> str:
-    """
-    Create the string to sign.
+    """Create the string to sign.
 
     Args:
         timestamp: ISO8601 timestamp (e.g., '20250929T151031Z')
@@ -136,8 +130,7 @@ def calculate_aws_s3_v4_signature(
     query_params: Optional[dict[str, str]] = None,
     extra_headers: Optional[dict[str, str]] = None,
 ) -> tuple[str, str, str]:
-    """
-    Calculate AWS S3 V4 signature.
+    """Calculate AWS S3 V4 signature.
 
     Args:
         method: HTTP method (e.g., 'PUT', 'GET')
@@ -233,8 +226,7 @@ def build_s3_upload_headers(
     content_type: str = "application/octet-stream",
     use_current_timestamp: bool = True,
 ) -> dict[str, str]:
-    """
-    Build headers for S3 upload request from UploadInfo model.
+    """Build headers for S3 upload request from UploadInfo model.
 
     Args:
         upload_info: UploadInfo pydantic model instance

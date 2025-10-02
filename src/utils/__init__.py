@@ -1,3 +1,9 @@
+"""Utility functions for Streamable.py.
+
+This module contains various utility functions for video processing,
+random string generation, color conversion, and file validation.
+"""
+
 from secrets import choice, SystemRandom
 from pathlib import Path
 from pymediainfo import MediaInfo, Track
@@ -6,6 +12,25 @@ from ..api.exceptions import VideoTooLargeError, VideoTooLongError
 
 
 def random_string(length: int, *charsets: str) -> str:
+    """Generate a random string with characters from the provided charsets.
+
+    Ensures at least one character from each charset is included in the result.
+    The remaining positions are filled with random characters from all charsets combined.
+
+    Args:
+        length: The desired length of the random string
+        *charsets: Variable number of character sets to choose from
+
+    Returns:
+        A randomly generated string of the specified length
+
+    Raises:
+        ValueError: If no charsets are provided
+
+    Example:
+        >>> random_string(10, "abc", "123")
+        'a2cb13abc2'
+    """
     length = max(len(charsets), length)  # ensure length is at least number of charsets
 
     if not charsets:
@@ -22,6 +47,16 @@ def random_string(length: int, *charsets: str) -> str:
 
 
 def random_email_domain() -> str:
+    """Return a random email domain from a predefined list of common providers.
+
+    Returns:
+        A random email domain string (e.g., 'gmail.com', 'yahoo.com')
+
+    Example:
+        >>> domain = random_email_domain()
+        >>> domain in ['gmail.com', 'yahoo.com', 'hotmail.com']
+        True
+    """
     return choice(
         [
             "gmail.com",
@@ -129,6 +164,23 @@ def random_email_domain() -> str:
 
 
 def rgb_to_hex(r: int, g: int, b: int) -> str:
+    """Convert RGB color values to hexadecimal color code.
+
+    Args:
+        r: Red component (0-255)
+        g: Green component (0-255)
+        b: Blue component (0-255)
+
+    Returns:
+        Hexadecimal color code in format #RRGGBB
+
+    Raises:
+        ValueError: If any RGB value is not between 0 and 255
+
+    Example:
+        >>> rgb_to_hex(255, 0, 128)
+        '#FF0080'
+    """
     for val, name in [(r, "red"), (g, "green"), (b, "blue")]:
         if not 0 <= val <= 255:
             raise ValueError(
@@ -139,12 +191,35 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
 
 
 def _ensure_is_file(path: Path) -> None:
+    """Ensure that the given path points to an existing file.
+
+    Args:
+        path: Path to validate
+
+    Raises:
+        ValueError: If the path is not a valid existing file
+    """
     path = path.resolve()
     if not path.is_file() or not path.exists():
         raise ValueError(f"Path '{path}' is not a valid file")
 
 
 def get_video_duration(video_file: Path) -> int:
+    """Get the duration of a video file in milliseconds.
+
+    Args:
+        video_file: Path to the video file
+
+    Returns:
+        Duration in milliseconds
+
+    Raises:
+        ValueError: If the file is not a valid video file or doesn't exist
+
+    Example:
+        >>> duration = get_video_duration(Path("video.mp4"))
+        >>> print(f"Video is {duration / 1000} seconds long")
+    """
     video_file = video_file.resolve()
     _ensure_is_file(video_file)
 
@@ -160,6 +235,17 @@ def get_video_duration(video_file: Path) -> int:
 
 
 def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
+    """Ensure a video file is not longer than 10 minutes.
+
+    This is a Streamable.com limitation for free accounts.
+
+    Args:
+        video_file: Path to the video file to check
+
+    Raises:
+        VideoTooLongError: If the video is longer than 10 minutes
+        ValueError: If the file is not a valid video file
+    """
     ten_minutes_ms: int = 10 * 60 * 1000
     video_file = video_file.resolve()
 
@@ -173,6 +259,17 @@ def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
 
 
 def ensure_is_not_more_than_250mb(file: Path) -> None:
+    """Ensure a file is not larger than 250MB.
+
+    This is a Streamable.com limitation for free accounts.
+
+    Args:
+        file: Path to the file to check
+
+    Raises:
+        VideoTooLargeError: If the file is larger than 250MB
+        ValueError: If the file doesn't exist
+    """
     two_hundred_fifty_mb: int = 250 * 1024 * 1024
     file = file.resolve()
 
@@ -190,6 +287,28 @@ def stream_file(
     progress_cb: Optional[Callable[[float], None]] = None,
     complete_cb: Optional[Callable[[], None]] = None,
 ) -> Generator[bytes, None, None]:
+    """Stream a file in chunks with optional progress tracking.
+
+    Args:
+        file: Path to the file to stream
+        chunk_size: Size of each chunk in bytes (default: 8MB)
+        progress_cb: Optional callback for progress updates (receives percentage)
+        complete_cb: Optional callback called when streaming is complete
+
+    Yields:
+        Chunks of file data as bytes
+
+    Raises:
+        ValueError: If the file doesn't exist or is not a valid file
+
+    Example:
+        >>> def progress(pct):
+        ...     print(f"Progress: {pct:.1f}%")
+        >>>
+        >>> for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
+        ...     # Process chunk
+        ...     pass
+    """
     file = file.resolve()
     _ensure_is_file(file)
 
