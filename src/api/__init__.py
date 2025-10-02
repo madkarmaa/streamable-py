@@ -1,9 +1,4 @@
-from httpx import (
-    Client,
-    Response,
-    get as httpx_get,
-    post as httpx_post,
-)
+from httpx import Client, Response
 from urllib.parse import urljoin, urlencode
 from pydantic import ValidationError
 from typing import Optional
@@ -53,7 +48,7 @@ AUTH_BASE_URL: URLBuilder = URLBuilder("https://ajax.streamable.com")
 API_BASE_URL: URLBuilder = URLBuilder("https://api-f.streamable.com/api/v1")
 
 
-def signup(session: Client, account_info: AccountInfo) -> Response:
+def signup(session: Client, *, account_info: AccountInfo) -> Response:
     url: str = AUTH_BASE_URL.path("users").build()
     body: CreateAccountRequest = CreateAccountRequest.from_account_info(account_info)
 
@@ -65,7 +60,7 @@ def signup(session: Client, account_info: AccountInfo) -> Response:
     return response
 
 
-def login(session: Client, account_info: AccountInfo) -> Response:
+def login(session: Client, *, account_info: AccountInfo) -> Response:
     url: str = AUTH_BASE_URL.path("check").build()
     body: LoginRequest = LoginRequest.from_account_info(account_info)
 
@@ -121,9 +116,9 @@ def change_password(
     return response
 
 
-def user_info(session: Optional[Client] = None) -> Response:
+def user_info(session: Client) -> Response:
     url: str = API_BASE_URL.path("me").build()
-    return session.get(url) if session is not None else httpx_get(url)
+    return session.get(url)
 
 
 def change_player_color(session: Client, *, color: str) -> Response:
@@ -195,18 +190,18 @@ def labels(session: Client) -> Response:
     return session.get(url)
 
 
-def shortcode(*, session: Optional[Client] = None, video_file: Path) -> Response:
+def shortcode(session: Client, *, video_file: Path) -> Response:
     url: str = (
         API_BASE_URL.path("uploads", "shortcode")
         .query(size=str(video_file.stat().st_size), version="unknown")
         .build()
     )
-    return session.get(url) if session is not None else httpx_get(url)
+    return session.get(url)
 
 
 def initialize_video_upload(
+    session: Client,
     *,
-    session: Optional[Client] = None,
     upload_info: UploadInfo,
     video_file: Path,
     title: Optional[str] = None,
@@ -217,22 +212,16 @@ def initialize_video_upload(
         original_size=video_file.stat().st_size,
         title=title if title else video_file.stem,
     )
-    return (
-        session.post(url, json=body.model_dump())
-        if session is not None
-        else httpx_post(url, json=body.model_dump())
-    )
+    return session.post(url, json=body.model_dump())
 
 
-def cancel_video_upload(
-    *, session: Optional[Client] = None, shortcode: str
-) -> Response:
+def cancel_video_upload(session: Client, *, shortcode: str) -> Response:
     url: str = API_BASE_URL.path("videos", shortcode, "cancel").build()
-    return session.post(url) if session is not None else httpx_post(url)
+    return session.post(url)
 
 
 def upload_video_file_to_s3(
-    *, session: Optional[Client] = None, upload_info: UploadInfo, video_file: Path
+    session: Client, *, upload_info: UploadInfo, video_file: Path
 ) -> Response:
     url: str = f"https://{upload_info.bucket}.s3.amazonaws.com/{upload_info.fields.key}"
 
@@ -243,21 +232,11 @@ def upload_video_file_to_s3(
     )
 
     with video_file.open("rb") as f:
-        return (
-            session.put(url, content=f, headers=headers)
-            if session is not None
-            else httpx_post(url, content=f, headers=headers)
-        )
+        return session.put(url, content=f, headers=headers)
 
 
 def transcode_video_after_upload(
-    *,
-    session: Optional[Client] = None,
-    upload_info: UploadInfo,
+    session: Client, *, upload_info: UploadInfo
 ) -> Response:
     url: str = API_BASE_URL.path("transcode", upload_info.shortcode).build()
-    return (
-        session.post(url, json=upload_info.transcoder_options.model_dump())
-        if session is not None
-        else httpx_post(url, json=upload_info.transcoder_options.model_dump())
-    )
+    return session.post(url, json=upload_info.transcoder_options.model_dump())

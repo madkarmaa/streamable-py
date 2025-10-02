@@ -35,7 +35,7 @@ class StreamableClient:
     def login(self, account_info: AccountInfo) -> StreamableUser:
         self._authenticated = False
         try:
-            response: Response = login(self._client, account_info)
+            response: Response = login(self._client, account_info=account_info)
             self._authenticated = True
             self._account_info = account_info
             return StreamableUser.model_validate(response.json())
@@ -46,7 +46,7 @@ class StreamableClient:
     def signup(self, account_info: AccountInfo) -> StreamableUser:
         self._authenticated = False
         try:
-            response: Response = signup(self._client, account_info)
+            response: Response = signup(self._client, account_info=account_info)
             self._authenticated = True
             self._account_info = account_info
             return StreamableUser.model_validate(response.json())
@@ -163,27 +163,21 @@ class StreamableClient:
         ensure_is_not_more_than_10_minutes(video_file)
 
         shortcode_response: Response = shortcode(
-            session=self._client if self._authenticated else None,
-            video_file=video_file,
+            session=self._client, video_file=video_file
         )
 
         upload_info: UploadInfo = UploadInfo.model_validate(shortcode_response.json())
 
         initialize_video_upload(
-            session=self._client if self._authenticated else None,
-            upload_info=upload_info,
-            video_file=video_file,
+            session=self._client, upload_info=upload_info, video_file=video_file
         )
 
         upload_video_file_to_s3(
-            session=self._client if self._authenticated else None,
-            upload_info=upload_info,
-            video_file=video_file,
+            session=self._client, upload_info=upload_info, video_file=video_file
         )
 
         transcoding_response: Response = transcode_video_after_upload(
-            session=self._client if self._authenticated else None,
-            upload_info=upload_info,
+            session=self._client, upload_info=upload_info
         )
 
         return Video.model_validate(transcoding_response.json())
@@ -197,4 +191,5 @@ class StreamableClient:
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        self.logout()
+        if self._authenticated:
+            self.logout()
