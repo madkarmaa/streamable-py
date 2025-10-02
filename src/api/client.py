@@ -19,7 +19,7 @@ class StreamableClient:
         return self._authenticated
 
     @property
-    def unsafe_client(self) -> Client:
+    def unsafe_httpx_client(self) -> Client:
         return self._client
 
     def _ensure_authenticated(self) -> None:
