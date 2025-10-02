@@ -55,8 +55,6 @@ class StreamableClient:
             raise
 
     def logout(self) -> None:
-        self._ensure_authenticated()
-
         # maybe call an API endpoint to invalidate the session on server side in the future
         # but it's not necessary since login() and signup() will create a new session anyway
 
@@ -191,5 +189,4 @@ class StreamableClient:
         exc_val: Optional[BaseException],
         exc_tb: Optional[TracebackType],
     ) -> None:
-        if self._authenticated:
-            self.logout()
+        self.logout()
