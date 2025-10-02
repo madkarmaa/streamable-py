@@ -1,40 +1,42 @@
 name: Format
 on:
-    push:
-        branches:
-            - "**"
+  push:
+    branches:
+      - "**"
 
 jobs:
-    format:
-        name: Format code
-        runs-on: ubuntu-latest
+  format:
+    name: Format code
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v5
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-            - name: Install UV
-              uses: astral-sh/setup-uv@v6
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
 
-            - name: Run Ruff
-              run: uvx ruff format
+      - name: Run Ruff
+        run: uvx ruff format
 
-            - name: Check for changes
-              id: verify-changed-files
-              run: |
-                  if [ -n "$(git status --porcelain)" ]; then
-                      echo "changed=true" >> $GITHUB_OUTPUT
-                  else
-                      echo "changed=false" >> $GITHUB_OUTPUT
-                  fi
+      - name: Check for changes
+        id: verify-changed-files
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+          else
+              echo "changed=false" >> $GITHUB_OUTPUT
+          fi
 
-            - name: Commit and push changes
-              if: steps.verify-changed-files.outputs.changed == 'true'
-              run: |
-                  git config --local user.email "action@github.com"
-                  git config --local user.name "GitHub Action"
-                  git add .
-                  git commit -m "refactor: format code"
-                  git push
+      - name: Commit and push changes
+        if: steps.verify-changed-files.outputs.changed == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "refactor: format code"
+          git push
