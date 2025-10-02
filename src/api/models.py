@@ -210,13 +210,6 @@ class Limits(BaseModel):
     storage: StorageLimits
 
 
-class SubscriptionInfo(BaseModel):
-    model_config = ConfigDict(extra="ignore")
-
-    availablePlans: list[Plan]
-    limits: Limits
-
-
 class Label(BaseModel):
     model_config = ConfigDict(extra="ignore")
 

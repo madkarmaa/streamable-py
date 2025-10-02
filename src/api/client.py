@@ -72,12 +72,6 @@ class StreamableClient:
         response: Response = user_info(self._client)
         return StreamableUser.model_validate(response.json())
 
-    def get_subscription_plans(self) -> list[Plan]:
-        response: Response = subscription_info(
-            self._client if self._authenticated else None
-        )
-        return SubscriptionInfo.model_validate(response.json()).availablePlans
-
     def change_password(self, new_password: str) -> None:
         self._ensure_authenticated()
         assert self._account_info is not None

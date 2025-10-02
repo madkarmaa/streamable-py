@@ -126,11 +126,6 @@ def user_info(session: Optional[Client] = None) -> Response:
     return session.get(url) if session is not None else httpx_get(url)
 
 
-def subscription_info(session: Optional[Client] = None) -> Response:
-    url: str = API_BASE_URL.path("me", "subscription", "info").build()
-    return session.get(url) if session is not None else httpx_get(url)
-
-
 def change_player_color(session: Client, *, color: str) -> Response:
     url: str = AUTH_BASE_URL.path("me").build()
 
