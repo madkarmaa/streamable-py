@@ -10,7 +10,9 @@
 
 A comprehensive Python library for interacting with Streamable.com, enabling video uploads, account management, and various other operations through the undocumented API.
 
-## Features
+📖 **[Documentation](./DOCS.md)** - Complete API reference
+
+## ✨ Features
 
 -   🎥 **Video Upload**: Upload videos up to 250MB and 10 minutes (free account limits)
 -   🔐 **Authentication**: Email + password authentication with session management
@@ -18,7 +20,7 @@ A comprehensive Python library for interacting with Streamable.com, enabling vid
 -   🏷️ **Label Management**: Create, rename, and delete video labels
 -   🛡️ **Type Safety**: Full Pydantic models with comprehensive type hints
 
-## Installation
+## 📦 Installation
 
 ```bash
 # Using pip
@@ -28,7 +30,7 @@ pip install streamable-py
 uv add streamable-py
 ```
 
-## Quick Start
+## 🚀 Quick Start
 
 ```python
 from streamable import StreamableClient, AccountInfo
@@ -44,7 +46,7 @@ with StreamableClient() as client:
     print(f"Uploaded: {video.url}")
 ```
 
-## Authentication
+## 🔐 Authentication
 
 > [!IMPORTANT]
 > This library supports **email + password authentication only**. Google and Facebook login methods are not supported.
@@ -66,7 +68,7 @@ print(f"Created account: {new_user.email}")
 client.logout()
 ```
 
-## Account Management
+## 👤 Account Management
 
 ```python
 with StreamableClient() as client:
@@ -86,26 +88,7 @@ with StreamableClient() as client:
     )
 ```
 
-## Label Management
-
-```python
-with StreamableClient() as client:
-    client.login(account)
-
-    # Create labels
-    gaming_label = client.create_label("Gaming")
-
-    # List all labels
-    labels = client.get_user_labels()
-    for label in labels:
-        print(f"{label.name}: {label.count} videos")
-
-    # Rename and delete
-    client.rename_label(gaming_label, "Gaming Videos")
-    client.delete_label(gaming_label)
-```
-
-## Limitations
+## ⚠️ Limitations
 
 > [!WARNING]
 > All functionality is based on the [**Free plan**](https://streamable.com/pricing) limitations.
@@ -114,19 +97,19 @@ with StreamableClient() as client:
 -   **Duration**: Maximum 10 minutes per video
 -   **Authentication**: Email + password only (no OAuth)
 
-## Requirements
+## 📋 Requirements
 
--   🐍 Python 3.13+
+-   🐍 Python **3.13+**
 
-## License
+## 📄 License
 
 MIT License - see [LICENSE](./LICENSE) file for details.
 
-## Contributing
+## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit issues and pull requests.
 
-## Disclaimer
+## ⚠️ Disclaimer
 
 > The only documented part of the API covers this:
 > ![Search result](./img/search-result.png)
