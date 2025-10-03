@@ -199,7 +199,7 @@ class ChangePlayerColorRequest(BaseModel):
     The color must be a valid hexadecimal color code in #RRGGBB format.
 
     Attributes:
-        color: Hex color code (e.g., '#FF0080')
+        color: Hex color code in #RRGGBB format (e.g., '#FF0080')
     """
 
     # there is no API-level check for valid colors, so we need to do it ourselves
@@ -569,13 +569,16 @@ class PlanLimits(BaseModel):
 
 
 class Video(BaseModel):
-    """Model for a Streamable video.
+    """Model representing a successfully uploaded Streamable video.
+
+    Contains the essential information returned after a video
+    has been uploaded and processed by Streamable.com.
 
     Attributes:
-        shortcode: Unique video identifier/shortcode
-        date_added: Upload timestamp
-        url: Video URL
-        plan_limits: Plan limitation information
+        shortcode: Unique video identifier/shortcode used in URLs
+        date_added: Upload timestamp (Unix timestamp)
+        url: Full Streamable video URL (https://streamable.com/{shortcode})
+        plan_limits: Plan limitation flags and restrictions
     """
 
     model_config = ConfigDict(extra="ignore")
@@ -617,10 +620,11 @@ class TranscoderOptions(BaseModel):
 
 
 class UploadInfo(BaseModel):
-    """Model for complete upload information.
+    """Model containing complete upload configuration and credentials.
 
-    Contains all necessary information for uploading and processing a video,
-    including AWS credentials, S3 fields, and transcoding options.
+    This model is returned by the shortcode endpoint and contains everything
+    needed to upload a video file to S3 and trigger transcoding. It includes
+    temporary AWS credentials, S3 upload parameters, and processing options.
 
     Attributes:
         accelerated: Whether accelerated upload is enabled

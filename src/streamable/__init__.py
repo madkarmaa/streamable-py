@@ -7,6 +7,10 @@ and various other operations.
 Authentication:
     This library supports email + password authentication only.
     Google and Facebook login methods are not supported.
+
+Limitations:
+    - Free account limits: 250MB file size, 10 minute duration per video
+    - Only supports web-based uploads (not mobile app uploads)
 """
 
 from .api.client import StreamableClient

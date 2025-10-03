@@ -71,7 +71,7 @@ class PasswordValidationError(StreamableError):
 class InvalidPlayerColorError(StreamableError):
     """Raised when an invalid color format is provided for the video player.
 
-    The color must be a valid hexadecimal color code in the format #RRGGBB.
+    The color must be a valid hexadecimal color code in the format `#RRGGBB`.
 
     Args:
         color: The invalid color string that was provided

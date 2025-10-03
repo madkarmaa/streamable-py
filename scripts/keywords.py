@@ -5,6 +5,15 @@ from argparse import ArgumentParser
 
 
 def fetch_keywords(repo_owner: str, repo_name: str) -> list[str]:
+    """Fetch repository topics from GitHub API.
+
+    Args:
+        repo_owner: GitHub username or organization name
+        repo_name: GitHub repository name
+
+    Returns:
+        List of topic strings from the repository
+    """
     repo_owner = repo_owner.strip()
     repo_name = repo_name.strip()
 

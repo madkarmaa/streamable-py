@@ -6,12 +6,37 @@ authentication, video uploads, and account management.
 """
 
 from types import TracebackType
-from typing import Optional, Type, Union, overload
+from typing import Optional, Type, Union, overload, Literal
 from httpx import Client, Response
 from pathlib import Path
 from .exceptions import InvalidSessionError
-from . import *
-from .models import *
+from . import (
+    login,
+    signup,
+    user_info,
+    change_password,
+    change_player_color,
+    change_privacy_settings,
+    create_label,
+    rename_label,
+    delete_label,
+    labels,
+    shortcode,
+    initialize_video_upload,
+    upload_video_file_to_s3,
+    transcode_video_after_upload,
+)
+from .models import (
+    AccountInfo,
+    StreamableUser,
+    Label,
+    UserLabel,
+    Video,
+    UploadInfo,
+    PrivacySettings,
+    UserLabels,
+)
+from .exceptions import InvalidSessionError
 from ..utils import ensure_is_not_more_than_10_minutes, ensure_is_not_more_than_250mb
 
 
@@ -22,16 +47,18 @@ class StreamableClient:
     including authentication, video uploads, account management, and label operations.
     It handles session management and provides type-safe methods for all operations.
 
+    The client supports context manager usage.
+
     Authentication:
         Only email + password authentication is supported by this client.
         Google and Facebook login methods are not available.
 
-    The client supports context manager usage for automatic cleanup:
-
     Example:
         ```python
+        from streamable import StreamableClient, AccountInfo
+        from pathlib import Path
+
         with StreamableClient() as client:
-            # Only email + password authentication supported
             account_info = AccountInfo(email="user@example.com", password="password123")
             client.login(account_info)
             video = client.upload_video(Path("video.mp4"))
@@ -196,10 +223,13 @@ class StreamableClient:
         self._account_info.password = new_password
 
     def change_player_color(self, color: str) -> None:
-        """Change the video player color.
+        """Change the video player color theme.
+
+        Sets the color theme for the video player interface. The color must be
+        a valid hexadecimal color code in #RRGGBB format.
 
         Args:
-            color: Hex color code (e.g., '#FF0080')
+            color: Hex color code in #RRGGBB format (e.g., '#FF0080')
 
         Raises:
             InvalidSessionError: If not authenticated
@@ -368,7 +398,8 @@ class StreamableClient:
             ValueError: If the file doesn't exist or is not a valid video
 
         Note:
-            File size and duration limits apply to free accounts.
+            Free account limits: Maximum 250MB file size and 10 minute duration.
+            The method automatically validates these constraints before upload.
         """
         video_file = video_file.resolve()
 

@@ -235,9 +235,11 @@ def get_video_duration(video_file: Path) -> int:
 
 
 def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
-    """Ensure a video file is not longer than 10 minutes.
+    """Validate that a video file meets Streamable's duration limit.
 
-    This is a Streamable.com limitation for free accounts.
+    Checks if the video duration is within the 10-minute limit imposed
+    by Streamable.com for free accounts. This validation is automatically
+    performed before upload.
 
     Args:
         video_file: Path to the video file to check
@@ -259,9 +261,11 @@ def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
 
 
 def ensure_is_not_more_than_250mb(file: Path) -> None:
-    """Ensure a file is not larger than 250MB.
+    """Validate that a file meets Streamable's size limit.
 
-    This is a Streamable.com limitation for free accounts.
+    Checks if the file size is within the 250MB limit imposed by
+    Streamable.com for free accounts. This validation is automatically
+    performed before upload.
 
     Args:
         file: Path to the file to check
