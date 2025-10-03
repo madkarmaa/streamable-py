@@ -2,33 +2,19 @@
 
 # streamable
 
-Streamable.py - Unofficial Python wrapper for the Streamable.com API.
+Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>
 
 This package provides a comprehensive Python interface for interacting with
 the undocumented Streamable.com API, enabling video uploads, account management,
 and various other operations.
 
-**Example**:
+Authentication:
+    This library supports email + password authentication only.
+    Google and Facebook login methods are not supported.
 
-  Basic usage with the StreamableClient:
-  
-    ```python
-    from streamable_py import StreamableClient, AccountInfo
-    from pathlib import Path
-
-    # Create account info
-    account = AccountInfo(email="your@email.com", password="your_password")
-
-    # Use the client
-    with StreamableClient() as client:
-        client.login(account)
-        video = client.upload_video(Path("video.mp4"))
-        print(f"Uploaded video: {video.url}")
-    ```
-  
-  Modules:
-- `api` - Core API client and models for Streamable.com interaction
-- `utils` - Utility functions for video processing and AWS S3 operations
+Limitations:
+    - Free account limits: 250MB file size, 10 minute duration per video
+    - Only supports web-based uploads (not mobile app uploads)
 
 <a id="streamable.api.exceptions"></a>
 
@@ -134,7 +120,7 @@ class InvalidPlayerColorError(StreamableError)
 
 Raised when an invalid color format is provided for the video player.
 
-The color must be a valid hexadecimal color code in the format `RRGGBB`.
+The color must be a valid hexadecimal color code in the format ``RRGGBB``.
 
 **Arguments**:
 
@@ -287,12 +273,20 @@ This class provides a convenient interface for interacting with Streamable.com,
 including authentication, video uploads, account management, and label operations.
 It handles session management and provides type-safe methods for all operations.
 
-The client supports context manager usage for automatic cleanup:
+The client supports context manager usage.
+
+Authentication:
+Only email + password authentication is supported by this client.
+Google and Facebook login methods are not available.
 
 **Example**:
 
     ```python
+    from streamable import StreamableClient, AccountInfo
+    from pathlib import Path
+
     with StreamableClient() as client:
+        account_info = AccountInfo(email="user@example.com", password="password123")
         client.login(account_info)
         video = client.upload_video(Path("video.mp4"))
         print(f"Uploaded: {video.url}")
@@ -358,11 +352,11 @@ Get direct access to the underlying HTTP client.
 def login(account_info: AccountInfo) -> StreamableUser
 ```
 
-Authenticate with Streamable.com using account credentials.
+Authenticate with Streamable.com using email + password credentials.
 
 **Arguments**:
 
-- `account_info` - Account credentials for authentication
+- `account_info` - Account credentials for authentication (email + password only)
   
 
 **Returns**:
@@ -378,6 +372,8 @@ Authenticate with Streamable.com using account credentials.
 **Notes**:
 
   This will close any existing session before creating a new one.
+  Only email + password authentication is supported - Google and Facebook
+  login methods are not available.
 
 <a id="streamable.api.client.StreamableClient.signup"></a>
 
@@ -391,7 +387,7 @@ Create a new Streamable.com account and authenticate.
 
 **Arguments**:
 
-- `account_info` - Account credentials for the new account
+- `account_info` - Account credentials for the new account (email + password only)
   
 
 **Returns**:
@@ -407,6 +403,8 @@ Create a new Streamable.com account and authenticate.
 **Notes**:
 
   This will close any existing session before creating a new one.
+  Only email + password registration is supported - Google and Facebook
+  signup methods are not available.
 
 <a id="streamable.api.client.StreamableClient.logout"></a>
 
@@ -475,11 +473,14 @@ Change the user's password.
 def change_player_color(color: str) -> None
 ```
 
-Change the video player color.
+Change the video player color theme.
+
+Sets the color theme for the video player interface. The color must be
+a valid hexadecimal color code in `RRGGBB` format.
 
 **Arguments**:
 
-- `color` - Hex color code (e.g., '`FF0080`')
+- `color` - Hex color code in `RRGGBB` format (e.g., '`FF0080`')
   
 
 **Raises**:
@@ -675,7 +676,8 @@ This method handles the complete upload process:
 
 **Notes**:
 
-  File size and duration limits apply to free accounts.
+  Free account limits: Maximum 250MB file size and 10 minute duration.
+  The method automatically validates these constraints before upload.
 
 <a id="streamable.api.client.StreamableClient.__enter__"></a>
 
@@ -1213,7 +1215,13 @@ class AccountInfo(BaseModel)
 Account information for Streamable.com authentication.
 
 This model represents the basic authentication credentials needed
-to interact with the Streamable.com API.
+to interact with the Streamable.com API using email + password authentication.
+
+**Notes**:
+
+  Only email + password authentication is supported by this library.
+  Google and Facebook login methods are not available.
+  
 
 **Attributes**:
 
@@ -1428,7 +1436,7 @@ The color must be a valid hexadecimal color code in `RRGGBB` format.
 
 **Attributes**:
 
-- `color` - Hex color code (e.g., '`FF0080`')
+- `color` - Hex color code in `RRGGBB` format (e.g., '`FF0080`')
 
 <a id="streamable.api.models.ChangePrivacySettingsRequest"></a>
 
@@ -1826,14 +1834,17 @@ Contains flags indicating various plan limitations.
 class Video(BaseModel)
 ```
 
-Model for a Streamable video.
+Model representing a successfully uploaded Streamable video.
+
+Contains the essential information returned after a video
+has been uploaded and processed by Streamable.com.
 
 **Attributes**:
 
-- `shortcode` - Unique video identifier/shortcode
-- `date_added` - Upload timestamp
-- `url` - Video URL
-- `plan_limits` - Plan limitation information
+- `shortcode` - Unique video identifier/shortcode used in URLs
+- `date_added` - Upload timestamp (Unix timestamp)
+- `url` - Full Streamable video URL (https://streamable.com/{shortcode})
+- `plan_limits` - Plan limitation flags and restrictions
 
 <a id="streamable.api.models.Options"></a>
 
@@ -1876,10 +1887,11 @@ Model for video transcoding options.
 class UploadInfo(BaseModel)
 ```
 
-Model for complete upload information.
+Model containing complete upload configuration and credentials.
 
-Contains all necessary information for uploading and processing a video,
-including AWS credentials, S3 fields, and transcoding options.
+This model is returned by the shortcode endpoint and contains everything
+needed to upload a video file to S3 and trigger transcoding. It includes
+temporary AWS credentials, S3 upload parameters, and processing options.
 
 **Attributes**:
 
@@ -2108,9 +2120,11 @@ Get the duration of a video file in milliseconds.
 def ensure_is_not_more_than_10_minutes(video_file: Path) -> None
 ```
 
-Ensure a video file is not longer than 10 minutes.
+Validate that a video file meets Streamable's duration limit.
 
-This is a Streamable.com limitation for free accounts.
+Checks if the video duration is within the 10-minute limit imposed
+by Streamable.com for free accounts. This validation is automatically
+performed before upload.
 
 **Arguments**:
 
@@ -2130,9 +2144,11 @@ This is a Streamable.com limitation for free accounts.
 def ensure_is_not_more_than_250mb(file: Path) -> None
 ```
 
-Ensure a file is not larger than 250MB.
+Validate that a file meets Streamable's size limit.
 
-This is a Streamable.com limitation for free accounts.
+Checks if the file size is within the 250MB limit imposed by
+Streamable.com for free accounts. This validation is automatically
+performed before upload.
 
 **Arguments**:
 
