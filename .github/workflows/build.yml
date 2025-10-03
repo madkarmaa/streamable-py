@@ -9,15 +9,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build project
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+             [[ "${{ github.event.workflow_run.conclusion }}" == "success" && \
+                "${{ contains(github.event.workflow_run.head_commit.message, '(release)') }}" == "true" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
+  update-keywords:
+    name: Update project keywords
+    needs: check
+    if: needs.check.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
-    if: >
-      github.event_name == 'workflow_dispatch' ||
-      (github.event.workflow_run.conclusion == 'success' &&
-       contains(github.event.workflow_run.head_commit.message, '(release)'))
 
     steps:
       - name: Checkout repository
@@ -38,11 +52,6 @@ jobs:
           REPO_NAME: ${{ github.event.repository.name }}
         run: uv run ./scripts/keywords.py $REPO_OWNER $REPO_NAME
 
-      - name: Build project
-        run: uv build
-
-      # TODO: publish to PyPI
-
       - name: Check for changes
         id: verify-changed-files
         run: |
@@ -60,3 +69,24 @@ jobs:
           git add .
           git commit -m "refactor: update project keywords"
           git push
+
+  build:
+    name: Build project
+    needs: check
+    if: needs.check.outputs.should_run == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install UV
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Build project
+        run: uv build
