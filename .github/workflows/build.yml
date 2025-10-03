@@ -72,8 +72,7 @@ jobs:
 
   build:
     name: Build project
-    needs: check
-    if: needs.check.outputs.should_run == 'true'
+    needs: update-keywords
     runs-on: ubuntu-latest
 
     steps:
