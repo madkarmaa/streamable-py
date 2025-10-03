@@ -43,11 +43,9 @@ from ..utils import ensure_is_not_more_than_10_minutes, ensure_is_not_more_than_
 class StreamableClient:
     """High-level client for Streamable.com API operations.
 
-    This class provides a convenient interface for interacting with Streamable.com,
-    including authentication, video uploads, account management, and label operations.
-    It handles session management and provides type-safe methods for all operations.
+    This class provides a convenient interface for interacting with Streamable.com.
 
-    The client supports context manager usage.
+    Supports context manager usage.
 
     Authentication:
         Only email + password authentication is supported by this client.
@@ -73,7 +71,6 @@ class StreamableClient:
     def __init__(self) -> None:
         """Initialize a new StreamableClient instance."""
         self._client: Client = Client()
-        self._authenticated: bool = False
         self._account_info: Optional[AccountInfo] = None
 
     @property
@@ -83,7 +80,7 @@ class StreamableClient:
         Returns:
             True if the client has valid authentication, False otherwise
         """
-        return self._authenticated
+        return self._client.cookies.get("session") is not None
 
     @property
     def unsafe_httpx_client(self) -> Client:
@@ -105,40 +102,13 @@ class StreamableClient:
             InvalidSessionError: If the client is not authenticated or session is invalid
         """
         if (
-            not self._authenticated
+            not self.is_authenticated
             or self._account_info is None
             or self._client.is_closed
         ):
             raise InvalidSessionError(
                 "Client is not authenticated. Call login() or signup() successfully first."
             )
-
-    def login(self, account_info: AccountInfo) -> StreamableUser:
-        """Authenticate with Streamable.com using email + password credentials.
-
-        Args:
-            account_info: Account credentials for authentication (email + password only)
-
-        Returns:
-            User information for the authenticated account
-
-        Raises:
-            InvalidCredentialsError: If the credentials are invalid
-
-        Note:
-            This will close any existing session before creating a new one.
-            Only email + password authentication is supported - Google and Facebook
-            login methods are not available.
-        """
-        self._authenticated = False
-        try:
-            response: Response = login(self._client, account_info=account_info)
-            self._authenticated = True
-            self._account_info = account_info
-            return StreamableUser.model_validate(response.json())
-        except:
-            self.logout()
-            raise
 
     def signup(self, account_info: AccountInfo) -> StreamableUser:
         """Create a new Streamable.com account and authenticate.
@@ -157,10 +127,33 @@ class StreamableClient:
             Only email + password registration is supported - Google and Facebook
             signup methods are not available.
         """
-        self._authenticated = False
         try:
             response: Response = signup(self._client, account_info=account_info)
-            self._authenticated = True
+            self._account_info = account_info
+            return StreamableUser.model_validate(response.json())
+        except:
+            self.logout()
+            raise
+
+    def login(self, account_info: AccountInfo) -> StreamableUser:
+        """Authenticate with Streamable.com using email + password credentials.
+
+        Args:
+            account_info: Account credentials for authentication (email + password only)
+
+        Returns:
+            User information for the authenticated account
+
+        Raises:
+            InvalidCredentialsError: If the credentials are invalid
+
+        Note:
+            This will close any existing session before creating a new one.
+            Only email + password authentication is supported - Google and Facebook
+            login methods are not available.
+        """
+        try:
+            response: Response = login(self._client, account_info=account_info)
             self._account_info = account_info
             return StreamableUser.model_validate(response.json())
         except:
@@ -180,12 +173,11 @@ class StreamableClient:
         if not self._client.is_closed:
             self._client.close()
 
-        self._authenticated = False
         self._account_info = None
         self._client = Client()
 
     def get_user_info(self) -> StreamableUser:
-        """Get current user information.
+        """Get the current user information.
 
         Returns:
             Current user information
@@ -377,13 +369,6 @@ class StreamableClient:
 
     def upload_video(self, video_file: Path) -> Video:
         """Upload a video file to Streamable.com.
-
-        This method handles the complete upload process:
-        1. Validates file size and duration
-        2. Generates upload credentials
-        3. Initializes the video record
-        4. Uploads the file to S3
-        5. Triggers transcoding
 
         Args:
             video_file: Path to the video file to upload

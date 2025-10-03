@@ -1,7 +1,7 @@
 """AWS S3 Signature V4 utility for generating authentication headers.
 
 This module provides functions to calculate AWS Signature V4 signatures
-and build headers for S3 upload requests.
+and build headers for Streamable S3 bucket upload requests.
 
 https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 """
@@ -30,7 +30,7 @@ def _sign(key: bytes, msg: str) -> bytes:
 def _get_signature_key(
     secret_key: str, date_stamp: str, region: str, service: str
 ) -> bytes:
-    """Derive the signing key for AWS Signature Version 4.
+    """Derive the signing key for AWS Signature V4.
 
     Args:
         secret_key: AWS secret access key
@@ -225,7 +225,7 @@ def build_s3_upload_headers(
     content_length: int,
     use_current_timestamp: bool = True,
 ) -> dict[str, str]:
-    """Build headers for S3 upload request from UploadInfo model.
+    """Build headers for the Streamable S3 bucket upload request from the UploadInfo model.
 
     Args:
         upload_info: UploadInfo pydantic model instance

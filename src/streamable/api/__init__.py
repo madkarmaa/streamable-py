@@ -1,8 +1,7 @@
 """Core API functions for Streamable.com communication.
 
 This module contains all the low-level API functions that directly
-interact with the Streamable.com endpoints. It includes authentication,
-user management, video upload, and label management functions.
+interact with the Streamable.com endpoints.
 """
 
 from httpx import Client, Response
@@ -17,9 +16,6 @@ from ..utils.s3 import build_s3_upload_headers
 
 class URLBuilder:
     """Helper class for building URLs with path and query parameters.
-
-    Provides a fluent interface for constructing URLs by chaining
-    path and query parameter additions.
 
     Args:
         base_url: The base URL to build from
@@ -40,7 +36,7 @@ class URLBuilder:
             path_parts: Initial path components (optional)
             query_params: Initial query parameters (optional)
         """
-        self.base_url: str = base_url.rstrip("/")
+        self.base_url: str = base_url.strip().rstrip("/")
         self.path_parts: list[str] = path_parts.copy() if path_parts else []
         self.query_params: dict[str, str] = query_params.copy() if query_params else {}
 
@@ -182,9 +178,9 @@ def change_password(
 
     # there is no API-level check for new and current password equality
     body: ChangePasswordRequest = ChangePasswordRequest(
-        current_password=current_password,
-        new_password=new_password,
-        session=session_id,
+        current_password=current_password.strip(),
+        new_password=new_password.strip(),
+        session=session_id.strip(),
     )
 
     response: Response = session.post(url, json=body.model_dump())
@@ -232,6 +228,7 @@ def change_player_color(session: Client, *, color: str) -> Response:
     Raises:
         InvalidPlayerColorError: If the color format is invalid
     """
+    color = color.strip()
     url: str = AUTH_BASE_URL.path("me").build()
 
     try:
@@ -300,6 +297,7 @@ def create_label(session: Client, *, name: str) -> Response:
     Raises:
         LabelAlreadyExistsError: If a label with this name already exists
     """
+    name = name.strip()
     url: str = API_BASE_URL.path("labels").build()
     body: CreateLabelRequest = CreateLabelRequest(name=name)
 
@@ -323,7 +321,7 @@ def rename_label(session: Client, *, label_id: int, new_name: str) -> Response:
         HTTP response from the label rename request
     """
     url: str = API_BASE_URL.path("labels", str(label_id)).build()
-    body: RenameLabelRequest = RenameLabelRequest(name=new_name)
+    body: RenameLabelRequest = RenameLabelRequest(name=new_name.strip())
     return session.patch(url, json=body.model_dump())
 
 
@@ -364,7 +362,7 @@ def shortcode(session: Client, *, video_file: Path) -> Response:
     upload credentials and S3 information.
 
     Args:
-        session: HTTP client session (must be authenticated)
+        session: HTTP client session
         video_file: Path to the video file to upload
 
     Returns:
@@ -391,7 +389,7 @@ def initialize_video_upload(
     the actual file upload to S3.
 
     Args:
-        session: HTTP client session (must be authenticated)
+        session: HTTP client session
         upload_info: Upload information from shortcode generation
         video_file: Path to the video file to upload
         title: Optional video title (defaults to filename)
@@ -412,7 +410,7 @@ def cancel_video_upload(session: Client, *, shortcode: str) -> Response:
     """Cancel a video upload.
 
     Args:
-        session: HTTP client session (must be authenticated)
+        session: HTTP client session
         shortcode: Shortcode of the upload to cancel
 
     Returns:
@@ -456,10 +454,10 @@ def transcode_video_after_upload(
     """Start video transcoding after upload.
 
     This is the final step in the upload process, which triggers
-    the video processing and transcoding pipeline.
+    the video processing and will make the video available for playback.
 
     Args:
-        session: HTTP client session (must be authenticated)
+        session: HTTP client session
         upload_info: Upload information from shortcode generation
 
     Returns:

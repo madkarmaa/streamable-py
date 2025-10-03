@@ -1,8 +1,4 @@
-"""Utility functions for Streamable.py.
-
-This module contains various utility functions for video processing,
-random string generation, color conversion, and file validation.
-"""
+"""Utility functions for Streamable.py."""
 
 from secrets import choice, SystemRandom
 from pathlib import Path
@@ -18,7 +14,7 @@ def random_string(length: int, *charsets: str) -> str:
     The remaining positions are filled with random characters from all charsets combined.
 
     Args:
-        length: The desired length of the random string
+        length: The desired length of the random string (if less than number of charsets, it will be increased)
         *charsets: Variable number of character sets to choose from
 
     Returns:
@@ -28,8 +24,9 @@ def random_string(length: int, *charsets: str) -> str:
         ValueError: If no charsets are provided
 
     Example:
-        >>> random_string(10, "abc", "123")
-        'a2cb13abc2'
+        ```python
+        random_string(10, "abc", "123")  # 'a2cb13abc2'
+        ```
     """
     length = max(len(charsets), length)  # ensure length is at least number of charsets
 
@@ -53,9 +50,9 @@ def random_email_domain() -> str:
         A random email domain string (e.g., 'gmail.com', 'yahoo.com')
 
     Example:
-        >>> domain = random_email_domain()
-        >>> domain in ['gmail.com', 'yahoo.com', 'hotmail.com']
-        True
+        ```python
+        random_email_domain()  # 'gmail.com'
+        ```
     """
     return choice(
         [
@@ -178,8 +175,9 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
         ValueError: If any RGB value is not between 0 and 255
 
     Example:
-        >>> rgb_to_hex(255, 0, 128)
-        '#FF0080'
+        ```python
+        rgb_to_hex(255, 0, 128)  # #FF0080
+        ```
     """
     for val, name in [(r, "red"), (g, "green"), (b, "blue")]:
         if not 0 <= val <= 255:
@@ -217,8 +215,10 @@ def get_video_duration(video_file: Path) -> int:
         ValueError: If the file is not a valid video file or doesn't exist
 
     Example:
-        >>> duration = get_video_duration(Path("video.mp4"))
-        >>> print(f"Video is {duration / 1000} seconds long")
+        ```python
+        duration = get_video_duration(Path("video.mp4"))
+        print(f"Video is {duration / 1000} seconds long")
+        ```
     """
     video_file = video_file.resolve()
     _ensure_is_file(video_file)
@@ -235,7 +235,7 @@ def get_video_duration(video_file: Path) -> int:
 
 
 def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
-    """Validate that a video file meets Streamable's duration limit.
+    """Validate that a video file meets Streamable's free plan duration limit.
 
     Checks if the video duration is within the 10-minute limit imposed
     by Streamable.com for free accounts. This validation is automatically
@@ -261,7 +261,7 @@ def ensure_is_not_more_than_10_minutes(video_file: Path) -> None:
 
 
 def ensure_is_not_more_than_250mb(file: Path) -> None:
-    """Validate that a file meets Streamable's size limit.
+    """Validate that a file meets Streamable's free plan size limit.
 
     Checks if the file size is within the 250MB limit imposed by
     Streamable.com for free accounts. This validation is automatically
@@ -306,12 +306,14 @@ def stream_file(
         ValueError: If the file doesn't exist or is not a valid file
 
     Example:
-        >>> def progress(pct):
-        ...     print(f"Progress: {pct:.1f}%")
-        >>>
-        >>> for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
-        ...     # Process chunk
-        ...     pass
+        ```python
+        def progress(pct):
+            print(f"Progress: {pct:.1f}%")
+
+        for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
+            # Process chunk
+            pass
+        ```
     """
     file = file.resolve()
     _ensure_is_file(file)

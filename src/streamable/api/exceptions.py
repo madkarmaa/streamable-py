@@ -10,8 +10,6 @@ from pathlib import Path
 class StreamableError(Exception):
     """Base exception class for all Streamable.com API related errors.
 
-    This is the parent class for all custom exceptions in the library.
-
     Args:
         message: Error message describing the issue
     """
@@ -26,11 +24,7 @@ class StreamableError(Exception):
 
 
 class EmailAlreadyInUseError(StreamableError):
-    """Raised when attempting to create an account with an email that's already registered.
-
-    This exception is raised during account creation when the provided email
-    address is already associated with an existing Streamable.com account.
-    """
+    """Raised when attempting to create an account with an email that's already registered."""
 
     pass
 
@@ -89,11 +83,7 @@ class InvalidPlayerColorError(StreamableError):
 
 
 class InvalidPrivacySettingsError(StreamableError):
-    """Raised when invalid privacy settings are provided.
-
-    This exception is raised when attempting to change privacy settings
-    with invalid parameters or when no settings are provided to change.
-    """
+    """Raised when invalid or no privacy settings are provided."""
 
     pass
 
@@ -134,7 +124,7 @@ class VideoTooLargeError(StreamableError):
             max_size: Maximum allowed size in bytes
         """
         super().__init__(
-            f"{video_file} size {size} exceeds maximum allowed size of {max_size}."
+            f"{video_file} size of {size} bytes exceeds maximum allowed size of {max_size} bytes."
         )
 
 

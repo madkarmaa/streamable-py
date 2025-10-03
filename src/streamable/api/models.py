@@ -1,9 +1,4 @@
-"""Pydantic models for Streamable.com API requests and responses.
-
-This module contains all data models used for communicating with the
-Streamable.com API, including request/response models, user data,
-and configuration structures.
-"""
+"""Pydantic models for Streamable.com API requests and responses."""
 
 import re
 import string
@@ -35,7 +30,7 @@ class AccountInfo(BaseModel, validate_assignment=True):
         Google and Facebook login methods are not available.
 
     Attributes:
-        username: User's email address (aliased as 'email')
+        username: User's email address (aliased as 'email' in the constructor)
         password: User's password (minimum 8 characters with complexity requirements)
     """
 
@@ -94,11 +89,7 @@ class AccountInfo(BaseModel, validate_assignment=True):
 
 
 class LoginRequest(AccountInfo):
-    """Request model for user login operations.
-
-    Inherits from AccountInfo and provides factory methods for creating
-    login requests from existing account information.
-    """
+    """Request model for user login operations."""
 
     @staticmethod
     def new() -> "LoginRequest":
@@ -127,11 +118,7 @@ class LoginRequest(AccountInfo):
 
 
 class CreateAccountRequest(AccountInfo):
-    """Request model for account creation operations.
-
-    Inherits from AccountInfo and adds required fields for account registration,
-    including email verification redirect URL.
-    """
+    """Request model for account creation operations."""
 
     @computed_field
     @property
@@ -185,7 +172,7 @@ class ChangePasswordRequest(BaseModel):
     Attributes:
         current_password: The user's current password
         new_password: The new password to set
-        session: The current session identifier
+        session: The current session ID
     """
 
     current_password: str
@@ -214,8 +201,6 @@ class ChangePlayerColorRequest(BaseModel):
 class ChangePrivacySettingsRequest(BaseModel):
     """Request model for changing video privacy settings.
 
-    All fields are optional - only provided fields will be updated.
-
     Attributes:
         allow_download: Whether to allow video downloads
         allow_sharing: Whether to allow video sharing
@@ -233,8 +218,7 @@ class ChangePrivacySettingsRequest(BaseModel):
     def domain_restrictions(self) -> Literal["off"]:
         """Domain restrictions setting.
 
-        Currently always set to 'off' as domain restrictions
-        are not supported in this implementation.
+        Currently always set to 'off'.
 
         Returns:
             Always returns 'off'
@@ -253,13 +237,7 @@ class CreateLabelRequest(BaseModel):
 
 
 class RenameLabelRequest(CreateLabelRequest):
-    """Request model for renaming an existing label.
-
-    Inherits from CreateLabelRequest as it has the same structure.
-
-    Attributes:
-        name: The new name for the label
-    """
+    """Request model for renaming an existing label."""
 
     pass
 
@@ -282,9 +260,6 @@ class InitializeVideoUploadRequest(BaseModel):
     def upload_source(self) -> Literal["web"]:
         """Source of the upload.
 
-        Always set to 'web' to indicate the upload is coming from
-        a web-based client (this library).
-
         Returns:
             Always returns 'web'
         """
@@ -298,7 +273,7 @@ class ErrorResponse(BaseModel):
     when requests fail.
 
     Attributes:
-        error: The error type/code
+        error: The error type
         message: Human-readable error message
     """
 
@@ -320,7 +295,7 @@ class PrivacySettings(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    visibility: str
+    visibility: Literal["public", "private"]
     allow_sharing: bool
     allow_download: bool
     hide_view_count: bool
@@ -329,24 +304,19 @@ class PrivacySettings(BaseModel):
 class StreamableUnauthenticatedUser(BaseModel):
     """Model for basic user information available without authentication.
 
-    Contains general statistics and socket information that can be
-    retrieved without being logged in.
-
     Attributes:
-        socket: WebSocket connection identifier
-        stale: Staleness indicator
+        socket: WebSocket connection URL
         total_plays: Total number of video plays
         total_uploads: Total number of uploads
         total_clips: Total number of clips
         total_videos: Total number of videos
-        embed_plays: Number of embedded plays (optional)
+        embed_plays: Number of embedded plays (might be `None`)
         total_embeds: Total number of embeds
     """
 
     model_config = ConfigDict(extra="ignore")
 
     socket: str
-    stale: int
     total_plays: int
     total_uploads: int
     total_clips: int
@@ -369,9 +339,9 @@ class StreamableUser(StreamableUnauthenticatedUser):
         color: User's selected player color
         plays_remaining: Number of remaining plays (for plan limits)
         requests_remaining: Number of remaining API requests
-        allow_download: Whether downloads are allowed (optional)
-        remove_branding: Whether branding is removed (optional)
-        hide_sharing: Whether sharing is hidden (optional)
+        allow_download: Whether downloads are allowed (might be `None`)
+        remove_branding: Whether branding is removed (might be `None`)
+        hide_sharing: Whether sharing is hidden (might be `None`)
         country: User's country code
         privacy_settings: User's privacy configuration
     """
@@ -403,7 +373,7 @@ class PlanPricing(BaseModel):
 
     model_config = ConfigDict(extra="ignore")
 
-    cadence: str
+    cadence: Literal["monthly", "annual"]
     name: str
     price: float
 
@@ -549,7 +519,7 @@ class Fields(BaseModel):
 
 
 class PlanLimits(BaseModel):
-    """Model for plan limit information.
+    """Model for plan limits information.
 
     Contains flags indicating various plan limitations.
 
@@ -607,7 +577,7 @@ class TranscoderOptions(BaseModel):
     """Model for video transcoding options.
 
     Attributes:
-        url: Transcoding service URL
+        url: S3 URL of the uploaded video
         token: Authentication token
         shortcode: Video shortcode
         size: Video file size
@@ -621,10 +591,6 @@ class TranscoderOptions(BaseModel):
 
 class UploadInfo(BaseModel):
     """Model containing complete upload configuration and credentials.
-
-    This model is returned by the shortcode endpoint and contains everything
-    needed to upload a video file to S3 and trigger transcoding. It includes
-    temporary AWS credentials, S3 upload parameters, and processing options.
 
     Attributes:
         accelerated: Whether accelerated upload is enabled

@@ -1,4 +1,4 @@
-"""Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>
+"""Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>.
 
 This package provides a comprehensive Python interface for interacting with
 the undocumented Streamable.com API, enabling video uploads, account management,
@@ -10,25 +10,10 @@ Authentication:
 
 Limitations:
     - Free account limits: 250MB file size, 10 minute duration per video
-    - Only supports web-based uploads (not mobile app uploads)
 """
 
 from .api.client import StreamableClient
-from .api.models import (
-    AccountInfo,
-    StreamableUser,
-    StreamableUnauthenticatedUser,
-    Label,
-    UserLabel,
-    Video,
-    UploadInfo,
-    PrivacySettings,
-    Plan,
-    Feature,
-    PlanPricing,
-    Limits,
-    StorageLimits,
-)
+from .api.models import AccountInfo
 from .api.exceptions import (
     StreamableError,
     InvalidCredentialsError,
@@ -42,28 +27,11 @@ from .api.exceptions import (
     VideoTooLongError,
 )
 
-__version__ = "0.1.0"
-__author__ = "madkarmaa"
-__email__ = "your-email@example.com"
-__license__ = "MIT"
-
 __all__ = [
     # Main client
     "StreamableClient",
     # Data models
     "AccountInfo",
-    "StreamableUser",
-    "StreamableUnauthenticatedUser",
-    "Label",
-    "UserLabel",
-    "Video",
-    "UploadInfo",
-    "PrivacySettings",
-    "Plan",
-    "Feature",
-    "PlanPricing",
-    "Limits",
-    "StorageLimits",
     # Exceptions
     "StreamableError",
     "InvalidCredentialsError",
