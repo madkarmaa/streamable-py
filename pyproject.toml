@@ -19,6 +19,7 @@ keywords = ["api-wrapper", "apiwrapper", "httpx", "httpx-client", "pydantic", "p
 [project.urls]
 Homepage = "https://github.com/madkarmaa/streamable-py"
 Repository = "https://github.com/madkarmaa/streamable-py"
+Documentation = "https://github.com/madkarmaa/streamable-py/blob/master/DOCS.md"
 Issues = "https://github.com/madkarmaa/streamable-py/issues"
 
 [build-system]
