@@ -2,7 +2,7 @@
 
 # streamable
 
-Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>
+Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>.
 
 This package provides a comprehensive Python interface for interacting with
 the undocumented Streamable.com API, enabling video uploads, account management,
@@ -14,7 +14,6 @@ Authentication:
 
 Limitations:
     - Free account limits: 250MB file size, 10 minute duration per video
-    - Only supports web-based uploads (not mobile app uploads)
 
 <a id="streamable.api.exceptions"></a>
 
@@ -34,8 +33,6 @@ class StreamableError(Exception)
 ```
 
 Base exception class for all Streamable.com API related errors.
-
-This is the parent class for all custom exceptions in the library.
 
 **Arguments**:
 
@@ -64,9 +61,6 @@ class EmailAlreadyInUseError(StreamableError)
 ```
 
 Raised when attempting to create an account with an email that's already registered.
-
-This exception is raised during account creation when the provided email
-address is already associated with an existing Streamable.com account.
 
 <a id="streamable.api.exceptions.InvalidCredentialsError"></a>
 
@@ -148,10 +142,7 @@ Initialize with the invalid color that was provided.
 class InvalidPrivacySettingsError(StreamableError)
 ```
 
-Raised when invalid privacy settings are provided.
-
-This exception is raised when attempting to change privacy settings
-with invalid parameters or when no settings are provided to change.
+Raised when invalid or no privacy settings are provided.
 
 <a id="streamable.api.exceptions.LabelAlreadyExistsError"></a>
 
@@ -180,6 +171,34 @@ Initialize with the name of the label that already exists.
 **Arguments**:
 
 - `label_name` - The name of the label that already exists
+
+<a id="streamable.api.exceptions.LabelNotFoundError"></a>
+
+## LabelNotFoundError Objects
+
+```python
+class LabelNotFoundError(StreamableError)
+```
+
+Raised when a specified label is not found.
+
+**Arguments**:
+
+- `label_name` - The name of the label that was not found
+
+<a id="streamable.api.exceptions.LabelNotFoundError.__init__"></a>
+
+#### \_\_init\_\_
+
+```python
+def __init__(label_id: int) -> None
+```
+
+Initialize with the ID of the label that was not found.
+
+**Arguments**:
+
+- `label_id` - The ID of the label that was not found
 
 <a id="streamable.api.exceptions.VideoTooLargeError"></a>
 
@@ -269,11 +288,9 @@ class StreamableClient()
 
 High-level client for Streamable.com API operations.
 
-This class provides a convenient interface for interacting with Streamable.com,
-including authentication, video uploads, account management, and label operations.
-It handles session management and provides type-safe methods for all operations.
+This class provides a convenient interface for interacting with Streamable.com.
 
-The client supports context manager usage.
+Supports context manager usage.
 
 Authentication:
 Only email + password authentication is supported by this client.
@@ -344,37 +361,6 @@ Get direct access to the underlying HTTP client.
 
   The underlying HTTPX Client instance
 
-<a id="streamable.api.client.StreamableClient.login"></a>
-
-#### login
-
-```python
-def login(account_info: AccountInfo) -> StreamableUser
-```
-
-Authenticate with Streamable.com using email + password credentials.
-
-**Arguments**:
-
-- `account_info` - Account credentials for authentication (email + password only)
-  
-
-**Returns**:
-
-  User information for the authenticated account
-  
-
-**Raises**:
-
-- `InvalidCredentialsError` - If the credentials are invalid
-  
-
-**Notes**:
-
-  This will close any existing session before creating a new one.
-  Only email + password authentication is supported - Google and Facebook
-  login methods are not available.
-
 <a id="streamable.api.client.StreamableClient.signup"></a>
 
 #### signup
@@ -406,6 +392,37 @@ Create a new Streamable.com account and authenticate.
   Only email + password registration is supported - Google and Facebook
   signup methods are not available.
 
+<a id="streamable.api.client.StreamableClient.login"></a>
+
+#### login
+
+```python
+def login(account_info: AccountInfo) -> StreamableUser
+```
+
+Authenticate with Streamable.com using email + password credentials.
+
+**Arguments**:
+
+- `account_info` - Account credentials for authentication (email + password only)
+  
+
+**Returns**:
+
+  User information for the authenticated account
+  
+
+**Raises**:
+
+- `InvalidCredentialsError` - If the credentials are invalid
+  
+
+**Notes**:
+
+  This will close any existing session before creating a new one.
+  Only email + password authentication is supported - Google and Facebook
+  login methods are not available.
+
 <a id="streamable.api.client.StreamableClient.logout"></a>
 
 #### logout
@@ -428,7 +445,7 @@ perform authenticated operations.
 def get_user_info() -> StreamableUser
 ```
 
-Get current user information.
+Get the current user information.
 
 **Returns**:
 
@@ -649,13 +666,6 @@ def upload_video(video_file: Path) -> Video
 
 Upload a video file to Streamable.com.
 
-This method handles the complete upload process:
-1. Validates file size and duration
-2. Generates upload credentials
-3. Initializes the video record
-4. Uploads the file to S3
-5. Triggers transcoding
-
 **Arguments**:
 
 - `video_file` - Path to the video file to upload
@@ -720,8 +730,7 @@ Automatically calls logout() to close the session and HTTP client.
 Core API functions for Streamable.com communication.
 
 This module contains all the low-level API functions that directly
-interact with the Streamable.com endpoints. It includes authentication,
-user management, video upload, and label management functions.
+interact with the Streamable.com endpoints.
 
 <a id="streamable.api.URLBuilder"></a>
 
@@ -732,9 +741,6 @@ class URLBuilder()
 ```
 
 Helper class for building URLs with path and query parameters.
-
-Provides a fluent interface for constructing URLs by chaining
-path and query parameter additions.
 
 **Arguments**:
 
@@ -1088,7 +1094,7 @@ upload credentials and S3 information.
 
 **Arguments**:
 
-- `session` - HTTP client session (must be authenticated)
+- `session` - HTTP client session
 - `video_file` - Path to the video file to upload
   
 
@@ -1115,7 +1121,7 @@ the actual file upload to S3.
 
 **Arguments**:
 
-- `session` - HTTP client session (must be authenticated)
+- `session` - HTTP client session
 - `upload_info` - Upload information from shortcode generation
 - `video_file` - Path to the video file to upload
 - `title` - Optional video title (defaults to filename)
@@ -1137,7 +1143,7 @@ Cancel a video upload.
 
 **Arguments**:
 
-- `session` - HTTP client session (must be authenticated)
+- `session` - HTTP client session
 - `shortcode` - Shortcode of the upload to cancel
   
 
@@ -1182,11 +1188,11 @@ def transcode_video_after_upload(session: Client, *,
 Start video transcoding after upload.
 
 This is the final step in the upload process, which triggers
-the video processing and transcoding pipeline.
+the video processing and will make the video available for playback.
 
 **Arguments**:
 
-- `session` - HTTP client session (must be authenticated)
+- `session` - HTTP client session
 - `upload_info` - Upload information from shortcode generation
   
 
@@ -1199,10 +1205,6 @@ the video processing and transcoding pipeline.
 # streamable.api.models
 
 Pydantic models for Streamable.com API requests and responses.
-
-This module contains all data models used for communicating with the
-Streamable.com API, including request/response models, user data,
-and configuration structures.
 
 <a id="streamable.api.models.AccountInfo"></a>
 
@@ -1225,7 +1227,7 @@ to interact with the Streamable.com API using email + password authentication.
 
 **Attributes**:
 
-- `username` - User's email address (aliased as 'email')
+- `username` - User's email address (aliased as 'email' in the constructor)
 - `password` - User's password (minimum 8 characters with complexity requirements)
 
 <a id="streamable.api.models.AccountInfo.new"></a>
@@ -1287,9 +1289,6 @@ class LoginRequest(AccountInfo)
 
 Request model for user login operations.
 
-Inherits from AccountInfo and provides factory methods for creating
-login requests from existing account information.
-
 <a id="streamable.api.models.LoginRequest.new"></a>
 
 #### new
@@ -1334,9 +1333,6 @@ class CreateAccountRequest(AccountInfo)
 ```
 
 Request model for account creation operations.
-
-Inherits from AccountInfo and adds required fields for account registration,
-including email verification redirect URL.
 
 <a id="streamable.api.models.CreateAccountRequest.verification_redirect"></a>
 
@@ -1420,7 +1416,7 @@ Request model for changing user password.
 
 - `current_password` - The user's current password
 - `new_password` - The new password to set
-- `session` - The current session identifier
+- `session` - The current session ID
 
 <a id="streamable.api.models.ChangePlayerColorRequest"></a>
 
@@ -1448,8 +1444,6 @@ class ChangePrivacySettingsRequest(BaseModel)
 
 Request model for changing video privacy settings.
 
-All fields are optional - only provided fields will be updated.
-
 **Attributes**:
 
 - `allow_download` - Whether to allow video downloads
@@ -1469,8 +1463,7 @@ def domain_restrictions() -> Literal["off"]
 
 Domain restrictions setting.
 
-Currently always set to 'off' as domain restrictions
-are not supported in this implementation.
+Currently always set to 'off'.
 
 **Returns**:
 
@@ -1500,12 +1493,6 @@ class RenameLabelRequest(CreateLabelRequest)
 
 Request model for renaming an existing label.
 
-Inherits from CreateLabelRequest as it has the same structure.
-
-**Attributes**:
-
-- `name` - The new name for the label
-
 <a id="streamable.api.models.InitializeVideoUploadRequest"></a>
 
 ## InitializeVideoUploadRequest Objects
@@ -1534,9 +1521,6 @@ def upload_source() -> Literal["web"]
 
 Source of the upload.
 
-Always set to 'web' to indicate the upload is coming from
-a web-based client (this library).
-
 **Returns**:
 
   Always returns 'web'
@@ -1556,7 +1540,7 @@ when requests fail.
 
 **Attributes**:
 
-- `error` - The error type/code
+- `error` - The error type
 - `message` - Human-readable error message
 
 <a id="streamable.api.models.PrivacySettings"></a>
@@ -1586,18 +1570,14 @@ class StreamableUnauthenticatedUser(BaseModel)
 
 Model for basic user information available without authentication.
 
-Contains general statistics and socket information that can be
-retrieved without being logged in.
-
 **Attributes**:
 
-- `socket` - WebSocket connection identifier
-- `stale` - Staleness indicator
+- `socket` - WebSocket connection URL
 - `total_plays` - Total number of video plays
 - `total_uploads` - Total number of uploads
 - `total_clips` - Total number of clips
 - `total_videos` - Total number of videos
-- `embed_plays` - Number of embedded plays (optional)
+- `embed_plays` - Number of embedded plays (might be `None`)
 - `total_embeds` - Total number of embeds
 
 <a id="streamable.api.models.StreamableUser"></a>
@@ -1622,9 +1602,9 @@ that's only available to authenticated users.
 - `color` - User's selected player color
 - `plays_remaining` - Number of remaining plays (for plan limits)
 - `requests_remaining` - Number of remaining API requests
-- `allow_download` - Whether downloads are allowed (optional)
-- `remove_branding` - Whether branding is removed (optional)
-- `hide_sharing` - Whether sharing is hidden (optional)
+- `allow_download` - Whether downloads are allowed (might be `None`)
+- `remove_branding` - Whether branding is removed (might be `None`)
+- `hide_sharing` - Whether sharing is hidden (might be `None`)
 - `country` - User's country code
 - `privacy_settings` - User's privacy configuration
 
@@ -1814,7 +1794,7 @@ Contains all the required fields for AWS S3 signed upload.
 class PlanLimits(BaseModel)
 ```
 
-Model for plan limit information.
+Model for plan limits information.
 
 Contains flags indicating various plan limitations.
 
@@ -1874,7 +1854,7 @@ Model for video transcoding options.
 
 **Attributes**:
 
-- `url` - Transcoding service URL
+- `url` - S3 URL of the uploaded video
 - `token` - Authentication token
 - `shortcode` - Video shortcode
 - `size` - Video file size
@@ -1888,10 +1868,6 @@ class UploadInfo(BaseModel)
 ```
 
 Model containing complete upload configuration and credentials.
-
-This model is returned by the shortcode endpoint and contains everything
-needed to upload a video file to S3 and trigger transcoding. It includes
-temporary AWS credentials, S3 upload parameters, and processing options.
 
 **Attributes**:
 
@@ -1915,7 +1891,7 @@ temporary AWS credentials, S3 upload parameters, and processing options.
 AWS S3 Signature V4 utility for generating authentication headers.
 
 This module provides functions to calculate AWS Signature V4 signatures
-and build headers for S3 upload requests.
+and build headers for Streamable S3 bucket upload requests.
 
 https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
 
@@ -1972,7 +1948,7 @@ def build_s3_upload_headers(
         use_current_timestamp: bool = True) -> dict[str, str]
 ```
 
-Build headers for S3 upload request from UploadInfo model.
+Build headers for the Streamable S3 bucket upload request from the UploadInfo model.
 
 **Arguments**:
 
@@ -1991,9 +1967,6 @@ Build headers for S3 upload request from UploadInfo model.
 
 Utility functions for Streamable.py.
 
-This module contains various utility functions for video processing,
-random string generation, color conversion, and file validation.
-
 <a id="streamable.utils.random_string"></a>
 
 #### random\_string
@@ -2009,7 +1982,7 @@ The remaining positions are filled with random characters from all charsets comb
 
 **Arguments**:
 
-- `length` - The desired length of the random string
+- `length` - The desired length of the random string (if less than number of charsets, it will be increased)
 - `*charsets` - Variable number of character sets to choose from
   
 
@@ -2025,8 +1998,9 @@ The remaining positions are filled with random characters from all charsets comb
 
 **Example**:
 
-  >>> random_string(10, "abc", "123")
-  'a2cb13abc2'
+    ```python
+    random_string(10, "abc", "123")  # 'a2cb13abc2'
+    ```
 
 <a id="streamable.utils.random_email_domain"></a>
 
@@ -2045,9 +2019,9 @@ Return a random email domain from a predefined list of common providers.
 
 **Example**:
 
-  >>> domain = random_email_domain()
-  >>> domain in ['gmail.com', 'yahoo.com', 'hotmail.com']
-  True
+    ```python
+    random_email_domain()  # 'gmail.com'
+    ```
 
 <a id="streamable.utils.rgb_to_hex"></a>
 
@@ -2078,8 +2052,9 @@ Convert RGB color values to hexadecimal color code.
 
 **Example**:
 
-  >>> rgb_to_hex(255, 0, 128)
-  '`FF0080`'
+    ```python
+    rgb_to_hex(255, 0, 128)  # `FF0080`
+    ```
 
 <a id="streamable.utils.get_video_duration"></a>
 
@@ -2108,8 +2083,10 @@ Get the duration of a video file in milliseconds.
 
 **Example**:
 
-  >>> duration = get_video_duration(Path("video.mp4"))
-  >>> print(f"Video is {duration / 1000} seconds long")
+    ```python
+    duration = get_video_duration(Path("video.mp4"))
+    print(f"Video is {duration / 1000} seconds long")
+    ```
 
 <a id="streamable.utils.ensure_is_not_more_than_10_minutes"></a>
 
@@ -2119,7 +2096,7 @@ Get the duration of a video file in milliseconds.
 def ensure_is_not_more_than_10_minutes(video_file: Path) -> None
 ```
 
-Validate that a video file meets Streamable's duration limit.
+Validate that a video file meets Streamable's free plan duration limit.
 
 Checks if the video duration is within the 10-minute limit imposed
 by Streamable.com for free accounts. This validation is automatically
@@ -2143,7 +2120,7 @@ performed before upload.
 def ensure_is_not_more_than_250mb(file: Path) -> None
 ```
 
-Validate that a file meets Streamable's size limit.
+Validate that a file meets Streamable's free plan size limit.
 
 Checks if the file size is within the 250MB limit imposed by
 Streamable.com for free accounts. This validation is automatically
@@ -2195,10 +2172,12 @@ Stream a file in chunks with optional progress tracking.
 
 **Example**:
 
-  >>> def progress(pct):
-  ...     print(f"Progress: {pct:.1f}%")
-  >>>
-  >>> for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
-  ...     # Process chunk
-  ...     pass
+    ```python
+    def progress(pct):
+        print(f"Progress: {pct:.1f}%")
+
+    for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
+        # Process chunk
+        pass
+    ```
 
