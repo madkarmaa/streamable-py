@@ -52,16 +52,16 @@ class StreamableClient:
         Google and Facebook login methods are not available.
 
     Example:
-        ```python
-        from streamable import StreamableClient, AccountInfo
-        from pathlib import Path
+    ```python
+    from streamable import StreamableClient, AccountInfo
+    from pathlib import Path
 
-        with StreamableClient() as client:
-            account_info = AccountInfo(email="user@example.com", password="password123")
-            client.login(account_info)
-            video = client.upload_video(Path("video.mp4"))
-            print(f"Uploaded: {video.url}")
-        ```
+    with StreamableClient() as client:
+        account_info = AccountInfo(email="user@example.com", password="password123")
+        client.login(account_info)
+        video = client.upload_video(Path("video.mp4"))
+        print(f"Uploaded: {video.url}")
+    ```
 
     Attributes:
         is_authenticated: Whether the client is currently authenticated

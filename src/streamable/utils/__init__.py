@@ -24,9 +24,9 @@ def random_string(length: int, *charsets: str) -> str:
         ValueError: If no charsets are provided
 
     Example:
-        ```python
-        random_string(10, "abc", "123")  # 'a2cb13abc2'
-        ```
+    ```python
+    random_string(10, "abc", "123")  # 'a2cb13abc2'
+    ```
     """
     length = max(len(charsets), length)  # ensure length is at least number of charsets
 
@@ -50,9 +50,9 @@ def random_email_domain() -> str:
         A random email domain string (e.g., 'gmail.com', 'yahoo.com')
 
     Example:
-        ```python
-        random_email_domain()  # 'gmail.com'
-        ```
+    ```python
+    random_email_domain()  # 'gmail.com'
+    ```
     """
     return choice(
         [
@@ -175,9 +175,9 @@ def rgb_to_hex(r: int, g: int, b: int) -> str:
         ValueError: If any RGB value is not between 0 and 255
 
     Example:
-        ```python
-        rgb_to_hex(255, 0, 128)  # #FF0080
-        ```
+    ```python
+    rgb_to_hex(255, 0, 128)  # #FF0080
+    ```
     """
     for val, name in [(r, "red"), (g, "green"), (b, "blue")]:
         if not 0 <= val <= 255:
@@ -215,10 +215,10 @@ def get_video_duration(video_file: Path) -> int:
         ValueError: If the file is not a valid video file or doesn't exist
 
     Example:
-        ```python
-        duration = get_video_duration(Path("video.mp4"))
-        print(f"Video is {duration / 1000} seconds long")
-        ```
+    ```python
+    duration = get_video_duration(Path("video.mp4"))
+    print(f"Video is {duration / 1000} seconds long")
+    ```
     """
     video_file = video_file.resolve()
     _ensure_is_file(video_file)
@@ -306,14 +306,14 @@ def stream_file(
         ValueError: If the file doesn't exist or is not a valid file
 
     Example:
-        ```python
-        def progress(pct):
-            print(f"Progress: {pct:.1f}%")
+    ```python
+    def progress(pct):
+        print(f"Progress: {pct:.1f}%")
 
-        for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
-            # Process chunk
-            pass
-        ```
+    for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
+        # Process chunk
+        pass
+    ```
     """
     file = file.resolve()
     _ensure_is_file(file)
