@@ -1912,7 +1912,7 @@ temporary AWS credentials, S3 upload parameters, and processing options.
 
 # streamable.utils.s3
 
-AWS S3 Signature Version 4 utility for generating authentication headers.
+AWS S3 Signature V4 utility for generating authentication headers.
 
 This module provides functions to calculate AWS Signature V4 signatures
 and build headers for S3 upload requests.
@@ -1933,7 +1933,8 @@ def calculate_aws_s3_v4_signature(
         session_token: str,
         region: str,
         timestamp: str,
-        payload_hash: str = "UNSIGNED-PAYLOAD",
+        payload_hash: Union[Literal["UNSIGNED-PAYLOAD"],
+                            str] = "UNSIGNED-PAYLOAD",
         query_params: Optional[dict[str, str]] = None,
         extra_headers: Optional[dict[str,
                                      str]] = None) -> tuple[str, str, str]
@@ -1944,8 +1945,8 @@ Calculate AWS S3 V4 signature.
 **Arguments**:
 
 - `method` - HTTP method (e.g., 'PUT', 'GET')
-- `host` - Host header value (e.g., 'streamables-upload.s3.amazonaws.com')
-- `path` - Request path (e.g., '/upload/y3vwnh')
+- `host` - Host header value (e.g., 'some-bucket.s3.amazonaws.com')
+- `path` - Request path (e.g., '/some/key')
 - `access_key` - AWS access key ID
 - `secret_key` - AWS secret access key
 - `session_token` - AWS session token
@@ -1968,7 +1969,6 @@ Calculate AWS S3 V4 signature.
 def build_s3_upload_headers(
         upload_info: UploadInfo,
         content_length: int,
-        content_type: str = "application/octet-stream",
         use_current_timestamp: bool = True) -> dict[str, str]
 ```
 
@@ -1978,8 +1978,7 @@ Build headers for S3 upload request from UploadInfo model.
 
 - `upload_info` - UploadInfo pydantic model instance
 - `content_length` - Size of the file being uploaded in bytes
-- `content_type` - MIME type of the content (default: 'application/octet-stream')
-- `use_current_timestamp` - If True, generate a new timestamp (recommended for actual uploads)
+- `use_current_timestamp` - If True, generate a new timestamp (must use for actual uploads)
   
 
 **Returns**:
