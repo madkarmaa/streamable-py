@@ -322,7 +322,13 @@ def rename_label(session: Client, *, label_id: int, new_name: str) -> Response:
     """
     url: str = API_BASE_URL.path("labels", str(label_id)).build()
     body: RenameLabelRequest = RenameLabelRequest(name=new_name.strip())
-    return session.patch(url, json=body.model_dump())
+
+    response: Response = session.patch(url, json=body.model_dump())
+
+    if response.status_code == 404:
+        raise LabelNotFoundError(label_id)
+
+    return response
 
 
 def delete_label(session: Client, *, label_id: int) -> Response:

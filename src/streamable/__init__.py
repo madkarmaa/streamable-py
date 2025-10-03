@@ -23,6 +23,7 @@ from .api.exceptions import (
     InvalidPlayerColorError,
     InvalidPrivacySettingsError,
     LabelAlreadyExistsError,
+    LabelNotFoundError,
     VideoTooLargeError,
     VideoTooLongError,
 )
@@ -41,6 +42,7 @@ __all__ = [
     "InvalidPlayerColorError",
     "InvalidPrivacySettingsError",
     "LabelAlreadyExistsError",
+    "LabelNotFoundError",
     "VideoTooLargeError",
     "VideoTooLongError",
 ]

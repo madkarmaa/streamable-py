@@ -104,6 +104,22 @@ class LabelAlreadyExistsError(StreamableError):
         super().__init__(f"Label '{label_name}' already exists.")
 
 
+class LabelNotFoundError(StreamableError):
+    """Raised when a specified label is not found.
+
+    Args:
+        label_name: The name of the label that was not found
+    """
+
+    def __init__(self, label_id: int) -> None:
+        """Initialize with the ID of the label that was not found.
+
+        Args:
+            label_id: The ID of the label that was not found
+        """
+        super().__init__(f"Label ID {label_id} not found.")
+
+
 class VideoTooLargeError(StreamableError):
     """Raised when a video file exceeds the maximum allowed file size.
 
