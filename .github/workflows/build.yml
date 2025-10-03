@@ -10,6 +10,7 @@ on:
 
 jobs:
   check:
+    name: Check if should run
     runs-on: ubuntu-latest
     outputs:
       should_run: ${{ steps.check.outputs.should_run }}
