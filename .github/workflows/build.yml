@@ -58,5 +58,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "refactor: auto-update project keywords"
+          git commit -m "refactor: update project keywords"
           git push

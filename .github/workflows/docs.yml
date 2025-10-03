@@ -1,12 +1,12 @@
-name: Format code
+name: Update documentation
 on:
   push:
     branches:
-      - "**"
+      - master
 
 jobs:
-  format:
-    name: Format code
+  docs:
+    name: Update documentation
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -20,8 +20,11 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v6
 
-      - name: Run Ruff
-        run: uvx ruff format
+      - name: Run pydoc-markdown
+        run: |
+          cd ./src
+          uvx pydoc-markdown -p streamable > ../DOCS.md
+          cd ..
 
       - name: Check for changes
         id: verify-changed-files
@@ -38,5 +41,5 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "refactor: format code"
+          git commit -m "docs: update documentation"
           git push
