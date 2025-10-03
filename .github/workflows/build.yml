@@ -91,3 +91,11 @@ jobs:
 
       - name: Build project
         run: uv build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: streamable-py-dist
+          path: ./dist/streamable*
+          if-no-files-found: error
+          retention-days: 30
