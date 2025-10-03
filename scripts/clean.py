@@ -11,6 +11,7 @@ if __name__ == "__main__":
     to_remove: list[Path] = []
     to_remove.extend(ROOT.glob("**/*cache*"))
     to_remove.extend(ROOT.glob("**/*egg-info*"))
+    to_remove.extend(ROOT.glob("**/dist"))
 
     for path in to_remove:
         shutil.rmtree(path, ignore_errors=True)
