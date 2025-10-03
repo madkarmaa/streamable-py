@@ -14,3 +14,7 @@
 > [!WARNING]
 >
 > I won't buy any paid plans, so everything is based on the [**Free plan**](https://streamable.com/pricing).
+
+> [!NOTE]
+>
+> This library supports **email + password authentication only**. Google and Facebook login methods are not supported.

@@ -28,7 +28,11 @@ class AccountInfo(BaseModel, validate_assignment=True):
     """Account information for Streamable.com authentication.
 
     This model represents the basic authentication credentials needed
-    to interact with the Streamable.com API.
+    to interact with the Streamable.com API using email + password authentication.
+
+    Note:
+        Only email + password authentication is supported by this library.
+        Google and Facebook login methods are not available.
 
     Attributes:
         username: User's email address (aliased as 'email')

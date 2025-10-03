@@ -22,11 +22,17 @@ class StreamableClient:
     including authentication, video uploads, account management, and label operations.
     It handles session management and provides type-safe methods for all operations.
 
+    Authentication:
+        Only email + password authentication is supported by this client.
+        Google and Facebook login methods are not available.
+
     The client supports context manager usage for automatic cleanup:
 
     Example:
         ```python
         with StreamableClient() as client:
+            # Only email + password authentication supported
+            account_info = AccountInfo(email="user@example.com", password="password123")
             client.login(account_info)
             video = client.upload_video(Path("video.mp4"))
             print(f"Uploaded: {video.url}")
@@ -81,10 +87,10 @@ class StreamableClient:
             )
 
     def login(self, account_info: AccountInfo) -> StreamableUser:
-        """Authenticate with Streamable.com using account credentials.
+        """Authenticate with Streamable.com using email + password credentials.
 
         Args:
-            account_info: Account credentials for authentication
+            account_info: Account credentials for authentication (email + password only)
 
         Returns:
             User information for the authenticated account
@@ -94,6 +100,8 @@ class StreamableClient:
 
         Note:
             This will close any existing session before creating a new one.
+            Only email + password authentication is supported - Google and Facebook
+            login methods are not available.
         """
         self._authenticated = False
         try:
@@ -109,7 +117,7 @@ class StreamableClient:
         """Create a new Streamable.com account and authenticate.
 
         Args:
-            account_info: Account credentials for the new account
+            account_info: Account credentials for the new account (email + password only)
 
         Returns:
             User information for the newly created account
@@ -119,6 +127,8 @@ class StreamableClient:
 
         Note:
             This will close any existing session before creating a new one.
+            Only email + password registration is supported - Google and Facebook
+            signup methods are not available.
         """
         self._authenticated = False
         try:
