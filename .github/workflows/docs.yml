@@ -23,6 +23,14 @@ jobs:
       - name: Install UV
         uses: astral-sh/setup-uv@v6
 
+      - name: Check if Docstrings follow the convention
+        run: |
+          output=$(uvx pydocstyle ./src/streamable)
+          if [ -n "$output" ]; then
+            echo "$output"
+            exit 1
+          fi
+
       - name: Run pydoc-markdown
         run: |
           cd ./src
