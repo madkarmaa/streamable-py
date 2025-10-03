@@ -55,7 +55,7 @@ def random_email_domain() -> str:
     ```
     """
     return choice(
-        [
+        [  # list taken from https://gist.github.com/ef1500/e73d501f84ff3081858c2cabdd683e80
             "gmail.com",
             "yahoo.com",
             "hotmail.com",
