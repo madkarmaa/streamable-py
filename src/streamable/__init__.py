@@ -1,4 +1,4 @@
-"""Streamable.py - Unofficial Python wrapper for the Streamable.com API.
+"""Unofficial Python wrapper for the undocumented API of <a href="https://streamable.com">streamable.com</a>
 
 This package provides a comprehensive Python interface for interacting with
 the undocumented Streamable.com API, enabling video uploads, account management,
