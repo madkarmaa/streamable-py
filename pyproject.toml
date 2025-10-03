@@ -1,15 +1,35 @@
 [project]
 name = "streamable-py"
-version = "0.1.0"
-description = "Add your description here"
+version = "1.0.0"
+description = "Unofficial Python wrapper for the undocumented API of streamable.com"
 readme = "README.md"
 requires-python = ">=3.13"
+license = { text = "MIT" }
+authors = [
+    { name = "madkarmaa" }
+]
 dependencies = [
     "email-validator>=2.3.0",
     "httpx>=0.28.1",
     "pydantic>=2.11.9",
     "pymediainfo>=7.0.1",
 ]
+keywords = ["api-wrapper", "apiwrapper", "httpx", "httpx-client", "pydantic", "pydantic-v2", "python", "python-3", "python3", "streamable", "streamable-api", "uv", "uv-package-manager", "uv-python"]
+
+[project.urls]
+Homepage = "https://github.com/madkarmaa/streamable-py"
+Repository = "https://github.com/madkarmaa/streamable-py"
+Issues = "https://github.com/madkarmaa/streamable-py/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/streamable"]
+
+[tool.hatch.build.targets.sdist]
+include = ["README.md", "LICENSE", "pyproject.toml", "src/streamable/**/*.py"]
 
 [tool.uv.workspace]
 members = [
@@ -17,4 +37,7 @@ members = [
 ]
 
 [dependency-groups]
-dev = []
+dev = [
+    "hatchling>=1.27.0",
+    "tomlkit>=0.13.3",
+]

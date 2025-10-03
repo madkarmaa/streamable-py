@@ -3,7 +3,7 @@ from pathlib import Path
 from os import system, name
 
 
-ROOT: Path = Path(__file__).parent.resolve()
+ROOT: Path = Path(__file__).parent.parent.resolve()
 
 if __name__ == "__main__":
     system("cls" if name == "nt" else "clear")
