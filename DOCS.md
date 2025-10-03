@@ -298,16 +298,16 @@ Google and Facebook login methods are not available.
 
 **Example**:
 
-    ```python
-    from streamable import StreamableClient, AccountInfo
-    from pathlib import Path
+```python
+from streamable import StreamableClient, AccountInfo
+from pathlib import Path
 
-    with StreamableClient() as client:
-        account_info = AccountInfo(email="user@example.com", password="password123")
-        client.login(account_info)
-        video = client.upload_video(Path("video.mp4"))
-        print(f"Uploaded: {video.url}")
-    ```
+with StreamableClient() as client:
+    account_info = AccountInfo(email="user@example.com", password="password123")
+    client.login(account_info)
+    video = client.upload_video(Path("video.mp4"))
+    print(f"Uploaded: {video.url}")
+```
   
 
 **Attributes**:
@@ -1998,9 +1998,9 @@ The remaining positions are filled with random characters from all charsets comb
 
 **Example**:
 
-    ```python
-    random_string(10, "abc", "123")  # 'a2cb13abc2'
-    ```
+```python
+random_string(10, "abc", "123")  # 'a2cb13abc2'
+```
 
 <a id="streamable.utils.random_email_domain"></a>
 
@@ -2019,9 +2019,9 @@ Return a random email domain from a predefined list of common providers.
 
 **Example**:
 
-    ```python
-    random_email_domain()  # 'gmail.com'
-    ```
+```python
+random_email_domain()  # 'gmail.com'
+```
 
 <a id="streamable.utils.rgb_to_hex"></a>
 
@@ -2052,9 +2052,9 @@ Convert RGB color values to hexadecimal color code.
 
 **Example**:
 
-    ```python
-    rgb_to_hex(255, 0, 128)  # `FF0080`
-    ```
+```python
+rgb_to_hex(255, 0, 128)  # `FF0080`
+```
 
 <a id="streamable.utils.get_video_duration"></a>
 
@@ -2083,10 +2083,10 @@ Get the duration of a video file in milliseconds.
 
 **Example**:
 
-    ```python
-    duration = get_video_duration(Path("video.mp4"))
-    print(f"Video is {duration / 1000} seconds long")
-    ```
+```python
+duration = get_video_duration(Path("video.mp4"))
+print(f"Video is {duration / 1000} seconds long")
+```
 
 <a id="streamable.utils.ensure_is_not_more_than_10_minutes"></a>
 
@@ -2172,12 +2172,12 @@ Stream a file in chunks with optional progress tracking.
 
 **Example**:
 
-    ```python
-    def progress(pct):
-        print(f"Progress: {pct:.1f}%")
+```python
+def progress(pct):
+    print(f"Progress: {pct:.1f}%")
 
-    for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
-        # Process chunk
-        pass
-    ```
+for chunk in stream_file(Path("video.mp4"), progress_cb=progress):
+    # Process chunk
+    pass
+```
 
