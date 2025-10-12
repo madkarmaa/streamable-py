@@ -268,6 +268,34 @@ Initialize with video duration information.
 - `length` - Actual duration of the video in milliseconds
 - `max_length` - Maximum allowed duration in milliseconds
 
+<a id="streamable.api.exceptions.RateLimitExceededError"></a>
+
+## RateLimitExceededError Objects
+
+```python
+class RateLimitExceededError(StreamableError)
+```
+
+Raised when a request to the Streamable.com API exceeds the rate limit.
+
+**Arguments**:
+
+- `endpoint` - The API endpoint that was called
+
+<a id="streamable.api.exceptions.RateLimitExceededError.__init__"></a>
+
+#### \_\_init\_\_
+
+```python
+def __init__(endpoint: str) -> None
+```
+
+Initialize with endpoint information.
+
+**Arguments**:
+
+- `endpoint` - The API endpoint that was called
+
 <a id="streamable.api.client"></a>
 
 # streamable.api.client
@@ -856,6 +884,7 @@ Create a new Streamable.com account.
 **Raises**:
 
 - `EmailAlreadyInUseError` - If the email is already registered
+- `RateLimitExceededError` - If the rate limit is exceeded
 
 <a id="streamable.api.login"></a>
 
@@ -881,6 +910,7 @@ Authenticate with Streamable.com.
 **Raises**:
 
 - `InvalidCredentialsError` - If the credentials are invalid
+- `RateLimitExceededError` - If the rate limit is exceeded
 
 <a id="streamable.api.change_password"></a>
 
