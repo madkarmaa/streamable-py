@@ -107,11 +107,15 @@ def signup(session: Client, *, account_info: AccountInfo) -> Response:
 
     Raises:
         EmailAlreadyInUseError: If the email is already registered
+        RateLimitExceededError: If the rate limit is exceeded
     """
     url: str = AUTH_BASE_URL.path("users").build()
     body: CreateAccountRequest = CreateAccountRequest.from_account_info(account_info)
 
     response: Response = session.post(url, json=body.model_dump())
+
+    if response.status_code == 429:
+        raise RateLimitExceededError(url)
 
     if response.status_code == 400 and "Email already in use" in response.text:
         raise EmailAlreadyInUseError(response.text)
@@ -131,11 +135,15 @@ def login(session: Client, *, account_info: AccountInfo) -> Response:
 
     Raises:
         InvalidCredentialsError: If the credentials are invalid
+        RateLimitExceededError: If the rate limit is exceeded
     """
     url: str = AUTH_BASE_URL.path("check").build()
     body: LoginRequest = LoginRequest.from_account_info(account_info)
 
     response: Response = session.post(url, json=body.model_dump())
+
+    if response.status_code == 429:
+        raise RateLimitExceededError(url)
 
     try:
         # API returns 200 OK even for invalid credentials

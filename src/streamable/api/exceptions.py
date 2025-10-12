@@ -166,3 +166,19 @@ class VideoTooLongError(StreamableError):
         super().__init__(
             f"{video_file} length {length}ms exceeds maximum allowed length of {max_length}ms."
         )
+
+
+class RateLimitExceededError(StreamableError):
+    """Raised when a request to the Streamable.com API exceeds the rate limit.
+
+    Args:
+        endpoint: The API endpoint that was called
+    """
+
+    def __init__(self, endpoint: str) -> None:
+        """Initialize with endpoint information.
+
+        Args:
+            endpoint: The API endpoint that was called
+        """
+        super().__init__(f"Rate limit exceeded for {endpoint}. Try again later.")
