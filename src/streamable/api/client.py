@@ -121,6 +121,7 @@ class StreamableClient:
 
         Raises:
             EmailAlreadyInUseError: If the email is already registered
+            RateLimitExceededError: If too many signup attempts are made
 
         Note:
             This will close any existing session before creating a new one.
@@ -146,6 +147,7 @@ class StreamableClient:
 
         Raises:
             InvalidCredentialsError: If the credentials are invalid
+            RateLimitExceededError: If too many login attempts are made
 
         Note:
             This will close any existing session before creating a new one.
