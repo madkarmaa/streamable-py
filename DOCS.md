@@ -412,6 +412,7 @@ Create a new Streamable.com account and authenticate.
 **Raises**:
 
 - `EmailAlreadyInUseError` - If the email is already registered
+- `RateLimitExceededError` - If too many signup attempts are made
   
 
 **Notes**:
@@ -443,6 +444,7 @@ Authenticate with Streamable.com using email + password credentials.
 **Raises**:
 
 - `InvalidCredentialsError` - If the credentials are invalid
+- `RateLimitExceededError` - If too many login attempts are made
   
 
 **Notes**:
