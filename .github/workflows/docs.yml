@@ -1,15 +1,34 @@
 name: Update documentation
 on:
-  push:
+  workflow_run:
+    workflows: ["Format"]
+    types:
+      - completed
     branches:
       - master
-    paths:
-      - "src/**/*.py"
   workflow_dispatch:
 
 jobs:
+  check:
+    name: Check if should run
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.check.outputs.should_run }}
+
+    steps:
+      - id: check
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]] || \
+             [[ "${{ github.event.workflow_run.conclusion }}" == "success" ]]; then
+            echo "should_run=true" >> $GITHUB_OUTPUT
+          else
+            echo "should_run=false" >> $GITHUB_OUTPUT
+          fi
+
   docs:
     name: Update documentation
+    needs: check
+    if: needs.check.outputs.should_run == 'true'
     runs-on: ubuntu-latest
     permissions:
       contents: write
