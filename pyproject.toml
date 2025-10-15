@@ -11,7 +11,7 @@ authors = [
 dependencies = [
     "email-validator>=2.3.0",
     "httpx>=0.28.1",
-    "pydantic>=2.11.9",
+    "pydantic>=2.12.2",
     "pymediainfo>=7.0.1",
 ]
 keywords = ["api-wrapper", "apiwrapper", "httpx", "httpx-client", "pydantic", "pydantic-v2", "python", "python-3", "python3", "streamable", "streamable-api", "uv", "uv-package-manager", "uv-python"]
